@@ -1,0 +1,91 @@
+x-axis is defined as left/right
+y-axis is defined as up/down
+z-axis is defined as forward/back
+
+Rotations are given in degrees for each axis (euler). The angle represents how much to rotate clockwise
+along the given axis. Default rotation of (0, 0, 0) represents the positive z axis direction (forward).
+
+
+-fps value                             The desired frame rate, by default set to 60. Set to -1 to run
+                                       as fast as the device can handle.
+
+-hidefps                               Hides the fps counter
+
+-poolmax value                         Max items per pool. Each category has its own pool. So if set to 10
+                                       then the maximum items spawned will be 5x10=50 (5 categories total).
+                                       If poolmax is not set then it will be 100 by default.
+
+-resolution x y                        The output size of the screenshots taken
+
+-framestokill value                    How many frames after the start of the simulation to kill the process.
+
+-secondstokill value                   How many seconds after the start of the simulation to kill the process.
+                                       More reliable than framestokill when frames are dipping.
+
+
+
+
+
+-camera x1 y1 z1 x2 y2 z2 [delay]      Spawns a camera with the given (x1, y1, z1) world space position
+        [fov]                          and (x2, y2, z2) rotation. If no camera is given then a camera
+                                       is created at position (0, 2.5, 0) and rotation (90, 0, 0). To
+                                       not have any cameras refer to -nocamera. The delay value tells the
+                                       camera how long to wait (in seconds) between screenshots. FOV is the
+                                       horizontal viewing angle of the camera in degrees. Default FOV is 60.
+
+-light type x1 y1 z1 x2 y2 z2 [range]  Spawns a light with the given (x1, y1, z1) world space position
+       [intensity] [spotAngle]         and (x2, y2, z2) rotation. By default range is 10 and intensity is 1.
+       [innerSpotAngle] [r] [g] [b]    If no light is given then a directional light is created by default.        
+       [a]                             Light types include: Directional, Point, and Spot
+                                       If the type is not Spot then spotAngle and innerSpotAngle should be
+                                       skipped. If the type is Spot and spotAngle and innerSpotAngle are
+                                       skipped, then they default to 30 and 21.8 respectively. RGBA color
+                                       is optional, if not provided then defaults to (1, 0.96, 0.84, 1).
+
+-nocamera                              This stops the default camera from being created when no cameras are
+                                       created by the user.
+
+-nolight                               This stops the default light from being created when no lights are
+                                       created by the user.
+
+
+
+
+
+-spawnitems type delay [spawnRate]     Spawn items of a specific type with a delay between each item spawn in
+            [minScale] [maxScale] [x1] seconds. Types include: rigid_plastic, soft_plastic, metal, cardboard,
+            [y1] [z1] [x2] [y2] [z2]   paper. The delay value represents how much time it takes for items to
+                                       spawn in seconds. So for a value of 0, items will be spawned every frame.
+                                       The spawn rate sets how many items to be spawned each time the spawn delay
+                                       passes. By default it is set to 1. Min scale and max scale are by default
+                                       set to 1. Everytime an item is spawned a scale value is chosen randomly between
+                                       min and max scale and is applied to the size and mass of the spawned object.
+                                       (x1, y1, z1) represents the center point of the spawn volume in world space.
+                                       Default is (0, 2, 0) if not provided. (x2, y2, z2) represent the volume the
+                                       items will spawn in. A value is chosen randomly for each axis that lies within
+                                       the given volume. Default is (0, 0, 0) if not provided. These values are in
+                                       meters.
+
+
+
+
+
+-convpos x y z                         The center top point of the conveyor belt in world space, (0, 1, 0) by
+                                       default.
+
+-convpercentspd value                  The speed the conveyor will move at in percent per physics frame
+                                       (1 means a full revolution per physics frame, 0.5 means half a
+                                       revolution per physics frame), 0.001 by default.
+
+-convlen value                         How long the belt loop is (on each flat side) in meters, 5 by default.
+
+-convheight value                      The gap between the top and bottom sides of the conveyor belt in
+                                       meters, 0.8 by default.
+
+-panelcount value                      The number of panels the conveyor belt will have, 20 by default.
+
+-panelgap value                        The gap between each panel of the conveyor belt in meters, 0.05 by default.
+
+-panelwidth value                      How wide each panel will be in meters, 2 by default.
+
+-panelthick value                      How thick each panel will be in meters, 0.02 by default.
