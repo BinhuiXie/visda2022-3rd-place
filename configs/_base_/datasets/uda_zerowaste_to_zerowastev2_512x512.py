@@ -75,11 +75,12 @@ data = dict(
             pipeline=train_pipeline)
             ),
     val=dict(
-       type='ZeroWasteDataset',
-            data_root='data/zerowaste-v2-splits/test',
-            img_dir='data',
-            ann_dir='sem_seg',
-            pipeline=test_pipeline),
+        type='ZeroWasteDataset',
+        data_root='data/zerowaste-f/val',
+        # data_root='data/zerowaste-f/test',
+        img_dir='data',
+        ann_dir='sem_seg',
+        pipeline=test_pipeline),
     test=dict(
        type='ZeroWasteV2Dataset',
             data_root='data/zerowaste-v2-splits/test',

@@ -66,6 +66,7 @@ data = dict(
     val=dict(
        type='ZeroWasteDataset',
             data_root='data/zerowaste-f/val',
+            # data_root='data/zerowaste-f/test',
             img_dir='data',
             ann_dir='sem_seg',
             pipeline=test_pipeline),
