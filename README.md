@@ -9,7 +9,7 @@
 - [ ] run baseline on our devices
 - [ ] run SePiCo for this Challenges
 - [ ] run ACDC's solutions for this Challenges
-- [ ] run Language-guided method for this Challenges and calculate model size
+- [ ] run Language-guided method for this Challenge and calculate model size
 
 
 ## Datasets preparation

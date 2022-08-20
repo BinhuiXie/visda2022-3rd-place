@@ -1,0 +1,3 @@
+CUDA_VISIBLE_DEVICES=3 python -m tools.train configs/daformer/synthzerowaste_to_zerowastev2_daformer.py --work-dir experiment/baseline/daformerV1Aug/
+CUDA_VISIBLE_DEVICES=3 python -m tools.test configs/daformer/synthzerowaste_to_zerowastev2_daformer.py experiment/baseline/daformerV1Aug/checkpoint.pth --eval mIoU --show-dir experiment/baseline/daformerV1Aug/predictions --opacity 1
+CUDA_VISIBLE_DEVICES=3 python -m tools.convert_visuals_to_labels experiment/baseline/daformerV1Aug/predictions experiment/baseline/daformerV1Aug/original/

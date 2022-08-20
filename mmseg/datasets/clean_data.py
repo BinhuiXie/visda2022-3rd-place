@@ -1,8 +1,8 @@
 import os
 
 
-seg_path = "/projectnb/ivc-ml/dbash/data/zerowaste-f/test/sem_seg/"
-data_path = "/projectnb/ivc-ml/dbash/data/zerowaste-f/test/data/"
+seg_path = "data/zerowaste-f/test/sem_seg/"
+data_path = "data/zerowaste-f/test/data/"
 
 seg_list = os.listdir(seg_path)
 data_list = os.listdir(data_path)

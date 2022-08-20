@@ -23,7 +23,6 @@ class ZeroWasteDataset(CustomDataset):
     CLASSES = ('background', 'rigid_plastic', 'cardboard', 'metal', 'soft_plastic')
 
     PALETTE = [[0, 0, 0], [128, 64, 128], [244, 35, 232], [70, 70, 70], [102, 102, 156]]
-               
 
     def __init__(self, **kwargs):
         super(ZeroWasteDataset, self).__init__(
