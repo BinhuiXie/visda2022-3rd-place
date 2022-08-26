@@ -7,7 +7,6 @@ import numpy as np
 from PIL import Image
 
 
-
 def convert_to_train_id(fl):
     # re-assign labels to match the format of Cityscapes
     pil_label = Image.open(fl)
