@@ -29,53 +29,28 @@ def update_legacy_cfg(cfg):
 
 
 def parse_args():
-    parser = argparse.ArgumentParser(
-        description='mmseg test (and eval) a model')
+    parser = argparse.ArgumentParser(description='mmseg test (and eval) a model')
     parser.add_argument('config', help='test config file path')
     parser.add_argument('checkpoint', help='checkpoint file')
-    parser.add_argument(
-        '--aug-test', action='store_true', help='Use Flip and Multi scale aug')
+    parser.add_argument('--aug-test', action='store_true', help='Use Flip and Multi scale aug')
     parser.add_argument('--out', help='output result file in pickle format')
-    parser.add_argument(
-        '--format-only',
-        action='store_true',
-        help='Format the output results without perform evaluation. It is'
-        'useful when you want to format the result to a specific format and '
-        'submit it to the test server')
-    parser.add_argument(
-        '--eval',
-        type=str,
-        nargs='+',
-        help='evaluation metrics, which depends on the dataset, e.g., "mIoU"'
-        ' for generic datasets, and "cityscapes" for Cityscapes')
+    parser.add_argument('--format-only', action='store_true',
+                        help='Format the output results without perform evaluation. It is useful when you want to '
+                             'format the result to a specific format and submit it to the test server')
+    parser.add_argument('--eval', type=str, nargs='+',
+                        help='evaluation metrics, which depends on the dataset, e.g., "mIoU"'
+                             ' for generic datasets, and "cityscapes" for Cityscapes')
     parser.add_argument('--show', action='store_true', help='show results')
-    parser.add_argument(
-        '--show-dir', help='directory where painted images will be saved')
-    parser.add_argument(
-        '--gpu-collect',
-        action='store_true',
-        help='whether to use gpu to collect results.')
-    parser.add_argument(
-        '--tmpdir',
-        help='tmp directory used for collecting results from multiple '
-        'workers, available when gpu_collect is not specified')
-    parser.add_argument(
-        '--options', nargs='+', action=DictAction, help='custom options')
-    parser.add_argument(
-        '--eval-options',
-        nargs='+',
-        action=DictAction,
-        help='custom options for evaluation')
-    parser.add_argument(
-        '--launcher',
-        choices=['none', 'pytorch', 'slurm', 'mpi'],
-        default='none',
-        help='job launcher')
-    parser.add_argument(
-        '--opacity',
-        type=float,
-        default=0.5,
-        help='Opacity of painted segmentation map. In (0, 1] range.')
+    parser.add_argument('--show-dir', help='directory where painted images will be saved')
+    parser.add_argument('--gpu-collect', action='store_true', help='whether to use gpu to collect results.')
+    parser.add_argument('--tmpdir',
+                        help='tmp directory used for collecting results from multiple '
+                             'workers, available when gpu_collect is not specified')
+    parser.add_argument('--options', nargs='+', action=DictAction, help='custom options')
+    parser.add_argument('--eval-options', nargs='+', action=DictAction, help='custom options for evaluation')
+    parser.add_argument('--launcher', choices=['none', 'pytorch', 'slurm', 'mpi'], default='none', help='job launcher')
+    parser.add_argument('--opacity', type=float, default=0.5,
+                        help='Opacity of painted segmentation map. In (0, 1] range.')
     parser.add_argument('--local_rank', type=int, default=0)
     args = parser.parse_args()
     if 'LOCAL_RANK' not in os.environ:
@@ -87,7 +62,7 @@ def main():
     args = parse_args()
 
     assert args.out or args.eval or args.format_only or args.show \
-        or args.show_dir, \
+           or args.show_dir, \
         ('Please specify at least one operation (save/eval/format/show the '
          'results / save the results) with the argument "--out", "--eval"'
          ', "--format-only", "--show" or "--show-dir"')

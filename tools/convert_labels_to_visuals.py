@@ -29,7 +29,7 @@ def main():
     img_list = os.listdir(args.label_folder)
 
     background_list = []
-    object_ratio_dict = {i: [] for i in range(10)}
+    object_ratio_dict = {i: [] for i in range(11)}
 
     for img_name in tqdm.tqdm(img_list):
         label_img = imageio.imread(os.path.join(args.label_folder, img_name))
@@ -46,6 +46,10 @@ def main():
     print(len(background_list))
     for key, value in object_ratio_dict.items():
         print(key, len(value))
+
+    import torch
+    torch.save({'all_background': background_list, 'object_ratio_dict': object_ratio_dict},
+               os.path.join(args.out_folder, 'label_statics.pth'))
 
 
 if __name__ == "__main__":
