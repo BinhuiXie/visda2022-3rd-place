@@ -1,10 +1,10 @@
 {
     "_base_": [
-        "../../configs/_base_/default_runtime.py",
-        "../../configs/_base_/models/segformer_b5.py",
-        "../../configs/_base_/datasets/synthzerowaste_to_zerowastev2_512x512.py",
-        "../../configs/_base_/schedules/adamw.py",
-        "../../configs/_base_/schedules/poly10warm.py"
+        "../_base_/default_runtime.py",
+        "../_base_/models/segformer_b5.py",
+        "../_base_/datasets/src_zerov1all_to_zerov2_512x512.py",
+        "../_base_/schedules/adamw.py",
+        "../_base_/schedules/poly10warm.py"
     ],
     "n_gpus": 1,
     "seed": 0,
@@ -42,21 +42,21 @@
     },
     "checkpoint_config": {
         "by_epoch": false,
-        "interval": 4000,
+        "interval": 8000,
         "max_keep_ckpts": 1
     },
     "evaluation": {
-        "interval": 4000,
+        "interval": 5000,
         "metric": "mIoU"
     },
-    "name": "synthzerowaste_source-only_segformer_1",
+    "name": "zerov1all_to_zerov2_source-only_segformer_mitb5",
     "exp": 1,
-    "name_dataset": "synthwaste",
+    "name_dataset": "zerov1all_to_zerov2",
     "name_architecture": "segformer_mitb5",
     "name_encoder": "mitb5",
     "name_decoder": "segformer",
     "name_uda": "source-only",
     "name_opt": "adamw_6e-05_pmTrue_poly10warm_1x2_40k",
-    "work_dir": "work_dirs/source_only/synthzerowaste_source-only_segformer_1/",
+    "work_dir": "work_dirs/source_only/zerov1all_to_zerov2_source-only_segformer_mitb5",
     "git_rev": "8d6e710700ff5e6a053c77bfe384ba44d4672cbe"
 }

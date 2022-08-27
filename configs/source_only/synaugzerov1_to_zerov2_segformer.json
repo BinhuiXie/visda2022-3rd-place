@@ -2,7 +2,7 @@
     "_base_": [
         "../_base_/default_runtime.py",
         "../_base_/models/segformer_b5.py",
-        "../_base_/datasets/zerowaste_to_zerowastev2_512x512.py",
+        "../_base_/datasets/src_synaugzerov1_to_zerov2_512x512.py",
         "../_base_/schedules/adamw.py",
         "../_base_/schedules/poly10warm.py"
     ],
@@ -38,25 +38,25 @@
     },
     "runner": {
         "type": "IterBasedRunner",
-        "max_iters": 40000
+        "max_iters": 60000
     },
     "checkpoint_config": {
         "by_epoch": false,
-        "interval": 8000,
+        "interval": 10000,
         "max_keep_ckpts": 1
     },
     "evaluation": {
-        "interval": 5000,
+        "interval": 10000,
         "metric": "mIoU"
     },
-    "name": "zerowaste2zerowastev2_source-only_segformer_mitb5",
+    "name": "synaugzerov1_to_zerov2_source-only_segformer_mitb5",
     "exp": 1,
-    "name_dataset": "zerowaste2zerowastev2",
+    "name_dataset": "synaugzerov1_to_zerov2",
     "name_architecture": "segformer_mitb5",
     "name_encoder": "mitb5",
     "name_decoder": "segformer",
     "name_uda": "source-only",
     "name_opt": "adamw_6e-05_pmTrue_poly10warm_1x2_40k",
-    "work_dir": "work_dirs/source_only/zerowaste2zerowastev2_source-only_segformer_mitb5",
+    "work_dir": "work_dirs/source_only/synaugzerov1_to_zerov2_source-only_segformer_mitb5",
     "git_rev": "8d6e710700ff5e6a053c77bfe384ba44d4672cbe"
 }

@@ -1,13 +1,11 @@
 # dataset settings
-dataset_type = 'ZeroWasteDataset'
-data_root = 'data/zerowaste-v2-splits/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 crop_size = (512, 512)
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations'),
-    dict(type='Resize', img_scale=(1280, 720)),
+    dict(type='Resize', img_scale=(960, 540)),  # original 1920x1080
     dict(type='RandomCrop', crop_size=crop_size, cat_max_ratio=0.75),
     dict(type='RandomFlip', prob=0.5),
     dict(type='PhotoMetricDistortion'),
@@ -20,7 +18,7 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(1024, 512),
+        img_scale=(960, 540),  # original 1920x1080
         # MultiScaleFlipAug is disabled by not providing img_ratios and
         # setting flip=False
         # img_ratios=[0.5, 0.75, 1.0, 1.25, 1.5, 1.75],
@@ -38,27 +36,29 @@ data = dict(
     workers_per_gpu=4,
     train=dict(
         type='ZeroWasteDataset',
-        data_root='data/zerowaste-f/train',
+        data_root='data/zerowaste-f/all',
         img_dir='data',
         ann_dir='sem_seg',
         pipeline=train_pipeline),
     val=dict(
         type='ZeroWasteDataset',
-        data_root='data/zerowaste-f/val',
-        # data_root='data/zerowaste-f/val',
+        data_root='data/zerowaste-f/test',
         img_dir='data',
         ann_dir='sem_seg',
         pipeline=test_pipeline),
+    # Phase 1 evaluate on zerowaste-v2 val set
     test=dict(
-        type='ZeroWasteV2Dataset',
-        data_root='data/zerowaste-v2-splits/val',
-        img_dir='data',
-        ann_dir='sem_seg',
-        pipeline=test_pipeline)
-    # test=dict(
-    #    type='ZeroWasteDataset',
-    #         data_root='data/zerowaste-f/test',
-    #         img_dir='data',
-    #         ann_dir='sem_seg',
-    #         pipeline=test_pipeline)
+       type='ZeroWasteV2Dataset',
+            data_root='data/zerowaste-v2-splits/val',
+            img_dir='data',
+            ann_dir='sem_seg',
+            pipeline=test_pipeline)
+
+    # Final evaluate on zerowaste-v2 test set
+    # test = dict(
+    #     type='ZeroWasteV2Dataset',
+    #     data_root='data/zerowaste-v2-splits/val',
+    #     img_dir='data',
+    #     ann_dir='sem_seg',
+    #     pipeline=test_pipeline)
 )

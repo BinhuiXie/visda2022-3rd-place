@@ -3,7 +3,7 @@ _base_ = [
     # DAFormer Network Architecture
     '../_base_/models/daformer_sepaspp_mitb5.py',
     # GTA->Cityscapes Data Loading
-    '../_base_/datasets/uda_zerowaste_to_zerowastev2_512x512.py',
+    '../_base_/datasets/uda_synaug_to_zerov2_512x512.py',
     # Basic UDA Self-Training
     '../_base_/uda/dacs.py',
     # AdamW Optimizer
@@ -42,11 +42,11 @@ n_gpus = 1
 runner = dict(type='IterBasedRunner', max_iters=40000)
 # Logging Configuration
 checkpoint_config = dict(by_epoch=False, interval=5000, max_keep_ckpts=1)
-evaluation = dict(interval=4000, metric='mIoU')
+evaluation = dict(interval=5000, metric='mIoU')
 # Meta Information for Result Analysis
-name = 'zerowaste2zerowastev2_uda_segformer_mit5'
+name = 'synaug_to_zerov2_uda_segformer_mit5'
 exp = 'basic'
-name_dataset = 'zerowaste2zerowastev2'
+name_dataset = 'synaug_to_zerov2'
 name_architecture = 'daformer_sepaspp_mitb5'
 name_encoder = 'mitb5'
 name_decoder = 'daformer_sepaspp'
