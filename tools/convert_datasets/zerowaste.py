@@ -65,7 +65,7 @@ def main():
 
     poly_files = []
     for poly in mmcv.scandir(
-            gt_dir, suffix=tuple(f'{i}.PNG' for i in range(10)),
+            gt_dir, suffix=tuple(f'{i}.PNG' for i in range(10)) + tuple(f'{i}.png' for i in range(10)),
             recursive=True):
         poly_file = osp.join(gt_dir, poly)
         poly_files.append(poly_file)

@@ -68,6 +68,10 @@ docs/_build/
 
 # PyBuilder
 target/
+pretrained
+*.out
+*.sh
+experiment/
 
 # Jupyter Notebook
 .ipynb_checkpoints
