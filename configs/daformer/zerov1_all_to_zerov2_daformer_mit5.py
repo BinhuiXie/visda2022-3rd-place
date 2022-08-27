@@ -24,11 +24,11 @@ uda = dict(
     # Pseudo-Label Crop
     pseudo_weight_ignore_top=15,
     pseudo_weight_ignore_bottom=120)
-# data = dict(
-#     train=dict(
-#         # Rare Class Sampling
-#         rare_class_sampling=dict(
-#             min_pixels=3000, class_temp=0.01, min_crop_ratio=0.5)))
+data = dict(
+    train=dict(
+        # Rare Class Sampling
+        rare_class_sampling=dict(
+            min_pixels=3000, class_temp=0.01, min_crop_ratio=0.5)))
 # Optimizer Hyperparameters
 optimizer_config = None
 optimizer = dict(

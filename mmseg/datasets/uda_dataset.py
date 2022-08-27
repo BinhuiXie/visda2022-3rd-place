@@ -62,8 +62,7 @@ class UDADataset(object):
             mmcv.print_log(f'RCS ClassProb: {self.rcs_classprob}', 'mmseg')
 
             with open(
-                    osp.join(cfg['source']['data_root'],
-                             'samples_with_class.json'), 'r') as of:
+                    osp.join(cfg['source']['data_root'], 'samples_with_class.json'), 'r') as of:
                 samples_with_class_and_n = json.load(of)
             samples_with_class_and_n = {
                 int(k): v
