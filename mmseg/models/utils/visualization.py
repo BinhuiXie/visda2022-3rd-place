@@ -2,6 +2,9 @@
 
 import numpy as np
 import torch
+
+import matplotlib
+matplotlib.use("agg")
 from matplotlib import pyplot as plt
 from PIL import Image
 
