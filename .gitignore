@@ -70,7 +70,6 @@ docs/_build/
 target/
 pretrained
 *.out
-*.sh
 experiment/
 
 # Jupyter Notebook
