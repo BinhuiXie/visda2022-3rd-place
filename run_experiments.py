@@ -10,6 +10,8 @@ from experiments import generate_experiment_cfgs
 from mmcv import Config, get_git_hash
 from tools import train
 
+import setproctitle
+
 
 def run_command(command):
     p = subprocess.Popen(
@@ -51,6 +53,7 @@ if __name__ == '__main__':
 
     # Training with Predefined Config
     if args.config is not None:
+        setproctitle.setproctitle(f'SePiCo CFG: {args.config}')
         cfg = Config.fromfile(args.config)
         # Specify Name and Work Directory
         exp_name = f'{args.machine}-{cfg["exp"]}'
@@ -72,6 +75,7 @@ if __name__ == '__main__':
 
     # Training with Generated Configs from experiments.py
     if args.exp is not None:
+        setproctitle.setproctitle(f'VisDA EXP: {args.exp}')
         exp_name = f'{args.machine}-exp{args.exp}'
         cfgs = generate_experiment_cfgs(args.exp)
         # Generate Configs
