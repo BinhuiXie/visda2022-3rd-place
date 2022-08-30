@@ -16,7 +16,7 @@ model = dict(
         in_index=[0, 1, 2, 3],
         channels=128,
         dropout_ratio=0.1,
-        num_classes=19,
+        num_classes=5,
         norm_cfg=norm_cfg,
         align_corners=False,
         decoder_params=dict(embed_dim=768, conv_kernel_size=1),
