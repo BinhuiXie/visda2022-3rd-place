@@ -6,7 +6,10 @@ import tqdm
 
 # ZeroWaste palette
 # PALETTE = [[0, 0, 0], [128, 64, 128], [244, 35, 232], [70, 70, 70], [102, 102, 156]]
-PALETTE = [[0, 0, 0], [0, 0, 230], [250, 170, 30], [153, 153, 153], [220, 220, 0]]
+# PALETTE = [[0, 0, 0], [0, 0, 230], [250, 170, 30], [153, 153, 153], [220, 220, 0]]
+
+# CLASSES = ('background', 'rigid_plastic', 'cardboard', 'metal', 'soft_plastic', 'paper')
+PALETTE = [[0, 0, 0], [255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 255], [255, 255, 0]]
 
 def convert_seg(label_img):
     """Converts single-channel label images to RGB visual examples."""
@@ -20,9 +23,9 @@ def convert_seg(label_img):
 
 def main():
     parser = argparse.ArgumentParser(description='Convert ZeroWaste visuals to labels.')
-    parser.add_argument('label_folder', type=str, default='D:/Documents/dataset/visda2022/zerowaste-f/test/sem_seg',
+    parser.add_argument('label_folder', type=str, default='D:/Documents/dataset/visda2022/synthwaste_splits/train/sem_seg',
                         help='path to the folder with ground-truth labels.')
-    parser.add_argument('out_folder', type=str,  default='D:/Documents/dataset/visda2022/zerowaste-f/test/sem_seg_color',
+    parser.add_argument('out_folder', type=str,  default='D:/Documents/dataset/visda2022/synthwaste_splits/train/sem_seg_color',
                         help='output path with visual labels.')
     args = parser.parse_args()
     os.makedirs(args.out_folder, exist_ok=True)
