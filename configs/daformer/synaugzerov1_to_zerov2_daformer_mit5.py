@@ -1,15 +1,15 @@
 _base_ = [
-    '../../_base_/default_runtime.py',
+    '../_base_/default_runtime.py',
     # DAFormer Network Architecture
-    '../../_base_/models/daformer_sepaspp_mitb5.py',
+    '../_base_/models/daformer_sepaspp_mitb5.py',
     # GTA->Cityscapes Data Loading
-    '../../_base_/datasets/uda_synaugzerov1_to_zerov2_512x512.py',
+    '../_base_/datasets/uda_synaugzerov1_to_zerov2_512x512.py',
     # Basic UDA Self-Training
-    '../../_base_/uda/dacs.py',
+    '../_base_/uda/dacs.py',
     # AdamW Optimizer
-    '../../_base_/schedules/adamw.py',
+    '../_base_/schedules/adamw.py',
     # Linear Learning Rate Warmup with Subsequent Linear Decay
-    '../../_base_/schedules/poly10warm.py'
+    '../_base_/schedules/poly10warm.py'
 ]
 # Random Seed
 seed = 0

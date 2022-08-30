@@ -51,3 +51,9 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# python tools/convert_synlabels_to_zerolabels.py data/synthwaste/train/sem_seg data/synthwaste/train/sem_seg_zero
+# python tools/convert_synlabels_to_zerolabels.py data/synthwaste/val/sem_seg data/synthwaste/val/sem_seg_zero
+# python tools/convert_synlabels_to_zerolabels.py data/synthwaste/test/sem_seg data/synthwaste/test/sem_seg_zero
+# python tools/convert_synlabels_to_zerolabels.py data/synthwaste-aug/sem_seg data/synthwaste-aug/sem_seg_zero
