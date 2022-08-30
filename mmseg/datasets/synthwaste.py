@@ -23,8 +23,9 @@ class SynthWasteDataset(CustomDataset):
     # CLASSES = ('background', 'rigid_plastic', 'cardboard', 'metal', 'soft_plastic', 'paper')
     CLASSES = ('background', 'rigid_plastic', 'cardboard', 'metal', 'soft_plastic')
 
+    PALETTE = [[0, 0, 0], [0, 0, 230], [250, 170, 30], [153, 153, 153], [220, 220, 0]]
     # PALETTE = [[0, 0, 0], [128, 64, 128], [244, 35, 232], [70, 70, 70], [102, 102, 156], [255, 255, 255]]
-    PALETTE = [[0, 0, 0], [128, 64, 128], [244, 35, 232], [70, 70, 70], [102, 102, 156]]
+    # PALETTE = [[0, 0, 0], [128, 64, 128], [244, 35, 232], [70, 70, 70], [102, 102, 156]]
                
 
     def __init__(self, **kwargs):

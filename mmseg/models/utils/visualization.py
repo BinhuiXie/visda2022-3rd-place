@@ -56,6 +56,8 @@ Cityscapes_palette = [
     96, 224, 64, 224, 224, 64, 96, 96, 192, 224, 96, 192, 96, 224, 192, 0, 0, 0
 ]
 
+ZeroWaste_palette = [0, 0, 0, 0, 0, 230, 250, 170, 30, 153, 153, 153, 220, 220, 0]
+
 
 def colorize_mask(mask, palette):
     zero_pad = 256 * 3 - len(palette)
@@ -105,6 +107,11 @@ def subplotimg(ax,
             if torch.is_tensor(img):
                 img = img.numpy()
             img = colorize_mask(img, palette)
+        elif kwargs.get('cmap', '') == 'zerowaste':
+            kwargs.pop('cmap')
+            if torch.is_tensor(img):
+                img = img.numpy()
+            img = colorize_mask(img, ZeroWaste_palette)
 
     if range_in_title:
         vmin = np.min(img)
