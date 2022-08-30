@@ -1,3 +1,6 @@
+
+
+
 # VisDA 2022 Challenge 
 
 **[[Challenge website]](https://ai.bu.edu/visda-2022/)**

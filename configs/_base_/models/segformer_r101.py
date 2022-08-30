@@ -1,4 +1,4 @@
-_base_ = ['../../_base_/models/segformer.py']
+_base_ = ['segformer.py']
 
 # model settings
 norm_cfg = dict(type='BN', requires_grad=True)

@@ -1,15 +1,15 @@
 _base_ = [
-    '../../_base_/default_runtime.py',
+    '../_base_/default_runtime.py',
     # DAFormer Network Architecture
-    '../../_base_/models/daformer_sepaspp_mitb5.py',
+    '../_base_/models/daformer_sepaspp_mitb5.py',
     # GTA->Cityscapes Data Loading
-    '../../_base_/datasets/uda_synaug_to_zerov2_512x512.py',
+    '../_base_/datasets/uda_zerov1_to_zerov2_512x512.py',
     # Basic UDA Self-Training
-    '../../_base_/uda/dacs.py',
+    '../_base_/uda/dacs.py',
     # AdamW Optimizer
-    '../../_base_/schedules/adamw.py',
+    '../_base_/schedules/adamw.py',
     # Linear Learning Rate Warmup with Subsequent Linear Decay
-    '../../_base_/schedules/poly10warm.py'
+    '../_base_/schedules/poly10warm.py'
 ]
 # Random Seed
 seed = 0
@@ -24,11 +24,11 @@ uda = dict(
     # Pseudo-Label Crop
     pseudo_weight_ignore_top=15,
     pseudo_weight_ignore_bottom=120)
-# data = dict(
-#     train=dict(
-#         # Rare Class Sampling
-#         rare_class_sampling=dict(
-#             min_pixels=3000, class_temp=0.01, min_crop_ratio=0.5)))
+data = dict(
+    train=dict(
+        # Rare Class Sampling
+        rare_class_sampling=dict(
+            min_pixels=3000, class_temp=0.01, min_crop_ratio=0.5)))
 # Optimizer Hyperparameters
 optimizer_config = None
 optimizer = dict(
@@ -44,9 +44,9 @@ runner = dict(type='IterBasedRunner', max_iters=40000)
 checkpoint_config = dict(by_epoch=False, interval=5000, max_keep_ckpts=1)
 evaluation = dict(interval=5000, metric='mIoU')
 # Meta Information for Result Analysis
-name = 'synaug_to_zerov2_uda_segformer_mit5'
+name = 'zerov1_to_zerov2_uda_segformer_mit5'
 exp = 'basic'
-name_dataset = 'synaug_to_zerov2'
+name_dataset = 'zerov1_to_zerov2'
 name_architecture = 'daformer_sepaspp_mitb5'
 name_encoder = 'mitb5'
 name_decoder = 'daformer_sepaspp'

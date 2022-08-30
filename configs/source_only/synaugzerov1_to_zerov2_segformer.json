@@ -38,15 +38,15 @@
     },
     "runner": {
         "type": "IterBasedRunner",
-        "max_iters": 60000
+        "max_iters": 40000
     },
     "checkpoint_config": {
         "by_epoch": false,
-        "interval": 10000,
+        "interval": 8000,
         "max_keep_ckpts": 1
     },
     "evaluation": {
-        "interval": 10000,
+        "interval": 5000,
         "metric": "mIoU"
     },
     "name": "synaugzerov1_to_zerov2_source-only_segformer_mitb5",
