@@ -113,8 +113,7 @@ class CustomDataset(Dataset):
                 self.split = osp.join(self.data_root, self.split)
 
         # load annotations
-        self.img_infos = self.load_annotations(self.img_dir, self.img_suffix,
-                                               self.ann_dir,
+        self.img_infos = self.load_annotations(self.img_dir, self.img_suffix, self.ann_dir,
                                                self.seg_map_suffix, self.split)
 
     def __len__(self):
@@ -207,8 +206,8 @@ class CustomDataset(Dataset):
                 introduced by pipeline.
         """
 
-        img_info = self.img_infos[idx]
-        ann_info = self.get_ann_info(idx)
+        img_info = self.img_infos[idx]   # {'filename': xxx, 'ann': {'sem_seg': xxx}}
+        ann_info = self.get_ann_info(idx)  # {'sem_seg': xxx}
         results = dict(img_info=img_info, ann_info=ann_info)
         self.pre_pipeline(results)
         return self.pipeline(results)
