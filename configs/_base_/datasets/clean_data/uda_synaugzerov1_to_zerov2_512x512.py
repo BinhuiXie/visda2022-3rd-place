@@ -57,7 +57,7 @@ data = dict(
         target=dict(
             type='ZeroWasteV2Dataset',
             data_root='data/zerowaste-v2-splits/train',
-            img_dir='clean_data',
+            img_dir='data',
             ann_dir='sem_seg',
             pipeline=target_train_pipeline)
             ),
