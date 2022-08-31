@@ -19,7 +19,7 @@ class ZeroWasteV2Dataset(CustomDataset):
     The ``img_suffix`` is fixed to '_leftImg8bit.png' and ``seg_map_suffix`` is
     fixed to '_gtFine_labelTrainIds.png' for Cityscapes dataset.
     """
-    # palette ref: N/A, m.bike, tr. light, pole, terrain
+    # palette ref: N/A, m.bike, tr. light, pole, tr. sign
     CLASSES = ('background', 'rigid_plastic', 'cardboard', 'metal', 'soft_plastic')
 
     PALETTE = [[0, 0, 0], [0, 0, 230], [250, 170, 30], [153, 153, 153], [220, 220, 0]]

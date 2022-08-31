@@ -12,7 +12,7 @@ def convert_seg(vis_img):
     label_img = np.zeros([*vis_img.shape[:-1]])
     for idx, lbl in enumerate(PALETTE):
         lbl_mask = vis_img == lbl
-        label_img[lbl_mask[..., 0]] = idx
+        label_img[np.logical_and.reduce(lbl_mask, -1)] = idx
     return label_img
 
 
