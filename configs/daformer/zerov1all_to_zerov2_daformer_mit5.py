@@ -3,7 +3,7 @@ _base_ = [
     # DAFormer Network Architecture
     '../_base_/models/daformer_sepaspp_mitb5.py',
     # GTA->Cityscapes Data Loading
-    '../_base_/datasets/uda_zerov1all_to_zerov2_512x512.py',
+    '../_base_/datasets/uda_zerov1all_to_zerov2_640x640.py',
     # Basic UDA Self-Training
     '../_base_/uda/dacs.py',
     # AdamW Optimizer

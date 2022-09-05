@@ -10,7 +10,7 @@ import tqdm
 
 # CLASSES = ('background', 'rigid_plastic', 'cardboard', 'metal', 'soft_plastic', 'paper')
 # PALETTE = [[0, 0, 0], [255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 255], [255, 255, 0]]
-PALETTE = [[0, 0, 0], [0, 0, 230], [250, 170, 30], [153, 153, 153], [220, 220, 0]]
+PALETTE = [[0, 0, 0], [0, 0, 230], [250, 170, 30], [153, 153, 153], [152, 251, 152]]
 
 
 def convert_seg(label_img):

@@ -9,7 +9,7 @@
 ## TODO
 - [x] download datasets
 - [x] setup envorinments
-- [ ] run baseline on our devices
+- [x] run baseline on our devices
 - [ ] run SePiCo for this Challenges
 - [ ] run ACDC's solutions for this Challenges
 - [ ] run Language-guided method for this Challenge and calculate model size
@@ -17,48 +17,24 @@
 
 ## Datasets preparation
 
-The pytorch implementation of the ZeroWaste dataset can be found in [here](zerowaste_dataloader.py).
 
 ## Baseline (DAFormer)
-### Set up the environment
-We use the official implementation of the state-of-the-art transformer-based domain adaptation methods [DAFormer](https://arxiv.org/abs/2111.14887) as our baseline. 
-To get started, please follow the instructions on how to set up the environment on the DAFormer [github page](https://github.com/lhoyer/DAFormer). 
-### Download checkpoints
-To download all relevant checkpoints, please use our script.
-```shell
-sh tools/download_checkpoints.sh
-```
 
-
-
-## Setup Datasets
-**ZeroWaste V1:** Please, download zerowaste-f.zip (7 Gb) from [here](http://csr.bu.edu/ftp/recycle/visda-2022/) and extract them to `data/zerowaste-f`.
-
-**ZeroWaste V2 (unlabeled)** Please, download zerowaste-v2-trainval.zip (12 Gb) from
-[here](http://csr.bu.edu/ftp/recycle/visda-2022/) and extract
-it to `data/zerowaste-v2-splits/`.
-
-**SynthWaste:** Please, download synthwaste_splits.zip (48 Gb) from
-[here](http://csr.bu.edu/ftp/recycle/visda-2022/) and extract it to `data/synthwaste`.
-
-**SynthWaste-aug:** Please, download 	synthwaste_aug.zip (33Gb) from
-[here](http://csr.bu.edu/ftp/recycle/visda-2022/) and extract it to `data/synthwaste-aug` (this folder contains only the augmented train set).
-
-Note: if you want to retrain the model on the combination of SynthWaste-aug and ZeroWaste-f, please combine the folders of ZeroWaste V1 and SynthWaste-aug to the folder `data/synthwaste_aug_zerowastev1`. 
-
-
-## Training
+### Training
 
 We provide the following config files:
- 
-1. `configs/daformer/zerowaste_to_zerowastev2_daformer_mit5.py` for training DAFormer on ZeroWaste V1 as source domain and ZeroWaste V2 as target domain.
-2. `configs/source_only/zerowaste_to_zerowastev2_segformer.json` to train SegFormer on ZeroWaste V1 and test on ZeroWaste V2 (source-only). 
-3. `configs/daformer/synthzerowaste_to_zerowastev2_daformer.py` to train DAFormer on the combination of SynthWaste-aug and ZeroWaste V1 as source domain and ZeroWaste V2 as target domain.
-4. `configs/source_only/synthzerowaste_segformer.json` to train SegFormer on the combination of SynthWaste-aug and ZeroWaste V1 and test on ZeroWaste V2 (source-only). 
+
+1. `configs/daformer/zerov1_to_zerov2_daformer_mit5.py` for training DAFormer on ZeroWaste V1 (train) as source domain and ZeroWaste V2 as target domain.
+2. `configs/source_only/zerov1_to_zerov2_segformer.json` to train SegFormer on ZeroWaste V1 (train) and test on ZeroWaste V2 (source-only). 
+3. `configs/daformer/synaugzerov1_to_zerov2_daformer_mit5.py` to train DAFormer on the combination of SynthWaste-aug and ZeroWaste V1 (train) as source domain and ZeroWaste V2 as target domain.
+4. `configs/source_only/synaugzerov1_to_zerov2_segformer.json` to train SegFormer on the combination of SynthWaste-aug and ZeroWaste V1 (train) and test on ZeroWaste V2 (source-only). 
+5. `configs/daformer/zerov1all_to_zerov2_daformer_mit5.py` for training DAFormer on ZeroWaste V1 (all) as source domain and ZeroWaste V2 as target domain.
+6. `configs/source_only/zerov1all_to_zerov2_segformer.json` to train SegFormer on the combination of SynthWaste-aug and ZeroWaste V1 (all) and test on ZeroWaste V2 (source-only). 
+
 
 To train the model with a desired configuration, run
 ```shell
-python -m tools.train /path/to/config/file --work-dir /path/to/experiment/folder
+sh scripts/zerov1_daformer.sh
 ```
 The checkpoints, full config file and other relevant data will be stored in the experiment folder. By default, the experiments will be saved to the `work_dirs` folder.
 For more details on how to use the code, please see the [official DAFormer guide](https://github.com/lhoyer/DAFormer). 
