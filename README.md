@@ -37,7 +37,7 @@ To evaluate the model and output the visual examples of the predictions,
 To produce final predictions in the original label mapping (0 = 'background', 1 = 'rigid_plastic', 2 = 'cardboard', 3 = 'metal', 4 = 'soft_plastic'), 
 use the following script:
 ```shell
-e.g., sh scripts/zerov1_daformer.sh
+e.g., sh scripts/1_zerov1_daformer_SegF.sh
 ```
 The checkpoints, full config file and other relevant data will be stored in the experiment folder. By default, the experiments will be saved to the `experiment` folder.
 For more details on how to use the code, please see the [official DAFormer guide](https://github.com/lhoyer/DAFormer). 
