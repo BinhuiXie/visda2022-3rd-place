@@ -212,7 +212,7 @@ def generate_experiment_cfgs(id):
     batch_size = 2
     iters = 40000
     opt, lr, schedule, pmult = 'adamw', 0.00006, 'poly10warm', True
-    crop = '512x512'
+    crop = '640x640'
     datasets = [
         ('zerowaste', 'zerowaste'),
     ]
@@ -223,13 +223,31 @@ def generate_experiment_cfgs(id):
     # -------------------------------------------------------------------------
     # VisDA official baseline: seed=0 official#v2val{50.84}; seed=0 repro#v2val{51.69}
     # -------------------------------------------------------------------------
-    if id == 0:
+    if id == -1:
         seeds = [0]
         datasets = [
             ('zerov1', 'zerov2'),
         ]
         architecture, backbone = ('daformer_sepaspp', 'mitb5')
         uda = 'dacs_a999_fdthings'
+        crop = '512x512'
+        # rcs_T = 0.01
+        plcrop = True
+        for (source, target), seed in \
+                itertools.product(datasets, seeds):
+            cfg = config_from_vars()
+            cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # VisDA official baseline: seed=0 official#v2val{50.84}; seed=0 repro#v2val{51.69}
+    # -------------------------------------------------------------------------
+    elif id == 0:
+        seeds = [0]
+        datasets = [
+            ('zerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp', 'mitb5')
+        uda = 'dacs_a999_fdthings'
+        crop = '512x512'
         # rcs_T = 0.01
         plcrop = True
         for (source, target), seed in \
