@@ -20,7 +20,7 @@
 
 ## Baseline (DAFormer)
 
-### Training
+### Training & Testing & Predictions
 
 We provide the following config files:
 
@@ -32,25 +32,16 @@ We provide the following config files:
 6. `configs/source_only/zerov1all_to_zerov2_segformer.json` to train SegFormer on the combination of SynthWaste-aug and ZeroWaste V1 (all) and test on ZeroWaste V2 (source-only). 
 
 
-To train the model with a desired configuration, run
+To train the model with a desired configuration,
+To evaluate the model and output the visual examples of the predictions,
+To produce final predictions in the original label mapping (0 = 'background', 1 = 'rigid_plastic', 2 = 'cardboard', 3 = 'metal', 4 = 'soft_plastic'), 
+use the following script:
 ```shell
-sh scripts/zerov1_daformer.sh
+e.g., sh scripts/zerov1_daformer.sh
 ```
-The checkpoints, full config file and other relevant data will be stored in the experiment folder. By default, the experiments will be saved to the `work_dirs` folder.
+The checkpoints, full config file and other relevant data will be stored in the experiment folder. By default, the experiments will be saved to the `experiment` folder.
 For more details on how to use the code, please see the [official DAFormer guide](https://github.com/lhoyer/DAFormer). 
 
-
-## Testing & Predictions
-
-To evaluate the model and output the visual examples of the predictions, run the following command:
-
-```shell
-python -m tools.test /path/to/config/file /path/to/checkpoint.pth --eval mIoU --show-dir /path/to/output/predictions --opacity 1
-```
-To produce final predictions in the original label mapping (0 = 'background', 1 = 'rigid_plastic', 2 = 'cardboard', 3 = 'metal', 4 = 'soft_plastic'), use the following script:
-```shell
-python -m tools.convert_visuals_to_labels /path/to/output/predictions /output/label/path/
-```
 
 ## Submit on eval.ai
 For evaluation, participants are required to join [VisDA-2022](https://eval.ai/web/challenges/challenge-page/1806/overview) the challenge on eval.ai. Please create an account on [eval.ai](https://eval.ai/) with the same email address you used to sign up for the challenge. Under the VisDA-2022 challenge, go to "Participate" and create a team with the same name as the one you registered. All members of a team need not be on eval.ai as long as one member in the team can submit. 
