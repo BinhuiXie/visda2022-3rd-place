@@ -6,7 +6,7 @@ import uuid
 from datetime import datetime
 
 import torch
-from experiments import generate_experiment_cfgs
+from mj_experiments import generate_experiment_cfgs
 from mmcv import Config, get_git_hash
 from tools import train
 
