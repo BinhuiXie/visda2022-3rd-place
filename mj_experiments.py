@@ -255,7 +255,7 @@ def generate_experiment_cfgs(id):
             cfg = config_from_vars()
             cfgs.append(cfg)
     # -------------------------------------------------------------------------
-    # why use plcrop?
+    # why use plcrop? !!!WRONG FD
     # -------------------------------------------------------------------------
     elif id == 1:
         seeds = [0]
@@ -271,7 +271,7 @@ def generate_experiment_cfgs(id):
             cfg = config_from_vars()
             cfgs.append(cfg)
     # -------------------------------------------------------------------------
-    # try LogitConstraint loss!
+    # try LogitConstraint loss! !!!WRONG FD
     # -------------------------------------------------------------------------
     elif id == 2:
         seeds = [0]
@@ -296,6 +296,38 @@ def generate_experiment_cfgs(id):
         ]
         architecture, backbone = ('daformer_sepaspp_lc', 'mitb5')
         uda = 'dacs_a999'
+        # rcs_T = 0.01
+        # plcrop = True
+        for (source, target), seed in \
+                itertools.product(datasets, seeds):
+            cfg = config_from_vars()
+            cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # why use plcrop?
+    # -------------------------------------------------------------------------
+    elif id == 4:
+        seeds = [0]
+        datasets = [
+            ('zerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp', 'mitb5')
+        uda = 'dacs_a999_fdthings_zerowaste'
+        # rcs_T = 0.01
+        # plcrop = True
+        for (source, target), seed in \
+                itertools.product(datasets, seeds):
+            cfg = config_from_vars()
+            cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # try LogitConstraint loss!
+    # -------------------------------------------------------------------------
+    elif id == 5:
+        seeds = [0]
+        datasets = [
+            ('zerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp_lc', 'mitb5')
+        uda = 'dacs_a999_fdthings_zerowaste'
         # rcs_T = 0.01
         # plcrop = True
         for (source, target), seed in \
