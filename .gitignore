@@ -71,6 +71,9 @@ target/
 pretrained
 *.out
 experiment/
+preds_mj/
+work_dirs_mj/
+tools/convert_labels_to_visuals.sh
 
 # Jupyter Notebook
 .ipynb_checkpoints

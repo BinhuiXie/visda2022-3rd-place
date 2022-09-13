@@ -247,7 +247,7 @@ def generate_experiment_cfgs(id):
         ]
         architecture, backbone = ('daformer_sepaspp', 'mitb5')
         uda = 'dacs_a999_fdthings'
-        crop = '512x512'
+        # crop = '512x512'
         # rcs_T = 0.01
         plcrop = True
         for (source, target), seed in \
