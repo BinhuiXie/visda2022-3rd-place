@@ -30,10 +30,9 @@ cp -r ./preds_mj/v1_to_v2_src_segf ./preds_mj/exp1/source_only
 ## ln -s /mnt/data/bit/xbh/_visda2022/visda2022-ours/preds_mj/v1_to_v2_src_segf/ ./preds_mj/exp1/source_only
 #2
 ## cp -d ./preds_mj/exp2/source_only ./preds_mj/exp1/
-
-# STEP 5: Zip and upload
+# Then the required folders can be zipped as follows
 cd ./preds_mj/exp1/
 zip -q -r exp1_v1_to_v2.zip ./uda ./source_only
 
-# STEP 6: Submit
+# STEP 5: Submit
 # exp1_v1_to_v2.zip is all you need to submit
