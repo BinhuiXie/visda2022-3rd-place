@@ -19,7 +19,7 @@ CUDA_VISIBLE_DEVICES=0 python tools.test \
 # STEP 3: Converting for submission
 
 # This step converts visual labels to train id labels to prepare for submission
-CUDA_VISIBLE_DEVICES=0 python tools.convert_visuals_to_labels.py ./preds_mj/exp1/palette ./preds_mj/exp1/uda
+CUDA_VISIBLE_DEVICES=0 python tools.convert_visuals_to_labels ./preds_mj/exp1/palette ./preds_mj/exp1/uda
 
 # STEP 4: Packing and zipping
 # First copy the source-only directory to `./preds_mj/exp1/`
