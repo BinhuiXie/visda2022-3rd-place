@@ -11,7 +11,7 @@ CUDA_VISIBLE_DEVICES=0 python run_mj_experiments.py --exp 1
 
 # This step evaluates the model and outputs corresponding test set labels (zero v2 val set for now)
 # Gets visuals here
-CUDA_VISIBLE_DEVICES=0 python tools.test \
+CUDA_VISIBLE_DEVICES=0 python -m tools.test \
 "/mnt/data/bit/xbh/_visda2022/visda2022-ours/work_dirs_mj/local-exp1/220906_2122_zerov12zerov2_dacs_a999_fdthings_daformer_sepaspp_mitb5_poly10warm_s0_77205/220906_2122_zerov12zerov2_dacs_a999_fdthings_daformer_sepaspp_mitb5_poly10warm_s0_77205.json" \
 "/mnt/data/bit/xbh/_visda2022/visda2022-ours/work_dirs_mj/local-exp1/220906_2122_zerov12zerov2_dacs_a999_fdthings_daformer_sepaspp_mitb5_poly10warm_s0_77205/latest.pth" \
 --show-dir ./preds_mj/exp1/palette --opacity 1
@@ -19,7 +19,7 @@ CUDA_VISIBLE_DEVICES=0 python tools.test \
 # STEP 3: Converting for submission
 
 # This step converts visual labels to train id labels to prepare for submission
-CUDA_VISIBLE_DEVICES=0 python tools.convert_visuals_to_labels ./preds_mj/exp1/palette ./preds_mj/exp1/uda
+CUDA_VISIBLE_DEVICES=0 python -m tools.convert_visuals_to_labels ./preds_mj/exp1/palette ./preds_mj/exp1/uda
 
 # STEP 4: Packing and zipping
 # First copy the source-only directory to `./preds_mj/exp1/`
