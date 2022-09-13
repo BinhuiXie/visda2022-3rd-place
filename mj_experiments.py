@@ -247,7 +247,7 @@ def generate_experiment_cfgs(id):
         ]
         architecture, backbone = ('daformer_sepaspp', 'mitb5')
         uda = 'dacs_a999_fdthings'
-        crop = '512x512'
+        # crop = '512x512'
         # rcs_T = 0.01
         plcrop = True
         for (source, target), seed in \
@@ -330,22 +330,6 @@ def generate_experiment_cfgs(id):
         uda = 'dacs_a999_fdthings_zerowaste'
         # rcs_T = 0.01
         # plcrop = True
-        for (source, target), seed in \
-                itertools.product(datasets, seeds):
-            cfg = config_from_vars()
-            cfgs.append(cfg)
-    # -------------------------------------------------------------------------
-    # try LogitConstraint loss!
-    # -------------------------------------------------------------------------
-    elif id == 6:
-        seeds = [0]
-        datasets = [
-            ('zerov1', 'zerov2'),
-        ]
-        architecture, backbone = ('daformer_sepaspp', 'mitb5')
-        uda = 'dacs_a999_fdthings_zerowaste'
-        # rcs_T = 0.01
-        plcrop = True
         for (source, target), seed in \
                 itertools.product(datasets, seeds):
             cfg = config_from_vars()
