@@ -24,16 +24,16 @@ CUDA_VISIBLE_DEVICES=0 python tools.convert_visuals_to_labels.py ./preds_mj/exp1
 # STEP 4: Packing and zipping
 # First copy the source-only directory to `./preds_mj/exp1/`
 # The SegFormer source-only folder can be found as "/mnt/data/bit/xbh/_visda2022/visda2022-ours/preds_mj/v1_to_v2_src_segf/"
-cp -r ./preds_mj/v1_to_v2_src_segf ./preds_mj/exp1/source-only
+cp -r ./preds_mj/v1_to_v2_src_segf ./preds_mj/exp1/source_only
 # Alternatively, soft link can be used or copied
 #1
-## ln -s /mnt/data/bit/xbh/_visda2022/visda2022-ours/preds_mj/v1_to_v2_src_segf/ ./preds_mj/exp1/source-only
+## ln -s /mnt/data/bit/xbh/_visda2022/visda2022-ours/preds_mj/v1_to_v2_src_segf/ ./preds_mj/exp1/source_only
 #2
-## cp -d ./preds_mj/exp2/source-only ./preds_mj/exp1/
+## cp -d ./preds_mj/exp2/source_only ./preds_mj/exp1/
 
 # STEP 5: Zip and upload
 cd ./preds_mj/exp1/
-zip -q -r exp1_v1_to_v2.zip ./uda ./source-only
+zip -q -r exp1_v1_to_v2.zip ./uda ./source_only
 
 # STEP 6: Submit
 # exp1_v1_to_v2.zip is all you need to submit
