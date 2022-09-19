@@ -1,8 +1,12 @@
+# STEP 0: checkout & pull
+# if you uploaded files via pyCharm, just run `checkout.sh`
+sh checkout.sh
+
 # STEP 1: Training
 
 # To run an experiment, first set the parameters in `mj_experiments.py` and take the exp id here
 # e.g., for exp 1
-CUDA_VISIBLE_DEVICES=0 python run_mj_experiments.py --exp 1
+CUDA_VISIBLE_DEVICES=0 nohup python run_mj_experiments.py --exp 1 >mjlogs/log1.log >&1 &
 # The working directory is set to `./work_dirs_mj`. Change it in run_mj_experiments.py if you would like to.
 # The previous logs are saved to `mjlogs`. My preference for this step is:
 ## CUDA_VISIBLE_DEVICES=0 nohup python run_mj_experiments.py --exp 1 > mjlogs/exp1.log >&1 &
