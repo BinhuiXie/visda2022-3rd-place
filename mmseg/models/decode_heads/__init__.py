@@ -8,6 +8,7 @@ from .psp_head import PSPHead
 from .segformer_head import SegFormerHead
 from .sep_aspp_head import DepthwiseSeparableASPPHead
 from .uper_head import UPerHead
+from .proj_head import ProjHead
 
 __all__ = [
     'FCNHead',
@@ -20,4 +21,5 @@ __all__ = [
     'SegFormerHead',
     'DAFormerHead',
     'ISAHead',
+    'ProjHead',
 ]
