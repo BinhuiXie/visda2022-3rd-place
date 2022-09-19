@@ -3,6 +3,9 @@
 # Licensed under the Apache License, Version 2.0
 # ---------------------------------------------------------------
 
+# UDA with Thing-Class ImageNet Feature Distance + Increased Alpha
+_base_ = ['dacs.py']
+
 # SePiCo
 uda = dict(
     type='SePiCo',
