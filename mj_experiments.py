@@ -431,7 +431,7 @@ def generate_experiment_cfgs(id):
         datasets = [
             ('zerov1', 'zerov2'),
         ]
-        architecture, backbone = ('daformer_sepaspp', 'mitb5')
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
         uda = 'sepico'
         # aux
         num_convs = 2
@@ -459,7 +459,7 @@ def generate_experiment_cfgs(id):
         datasets = [
             ('zerov1', 'zerov2'),
         ]
-        architecture, backbone = ('daformer_sepaspp', 'mitb5')
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
         uda = 'sepico'
         # aux
         num_convs = 2
@@ -487,7 +487,7 @@ def generate_experiment_cfgs(id):
         datasets = [
             ('zerov1', 'zerov2'),
         ]
-        architecture, backbone = ('daformer_sepaspp', 'mitb5')
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
         uda = 'sepico'
         # aux
         num_convs = 2
