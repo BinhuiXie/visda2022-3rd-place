@@ -334,6 +334,22 @@ def generate_experiment_cfgs(id):
                 itertools.product(datasets, seeds):
             cfg = config_from_vars()
             cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # try best baseline again!  dacs_a999_fdthings_zerowaste!!!!
+    # -------------------------------------------------------------------------
+    elif id == 6:
+        seeds = [0]
+        datasets = [
+            ('zerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp', 'mitb5')
+        uda = 'dacs_a999_fdthings_zerowaste'
+        # rcs_T = 0.01
+        plcrop = True
+        for (source, target), seed in \
+                itertools.product(datasets, seeds):
+            cfg = config_from_vars()
+            cfgs.append(cfg)
     else:
         raise NotImplementedError('Unknown id {}'.format(id))
 
