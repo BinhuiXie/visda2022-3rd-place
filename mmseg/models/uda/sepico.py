@@ -1,5 +1,12 @@
-# The ema model and the domain-mixing are based on:
+# ---------------------------------------------------------------
+# Copyright (c) 2022 BIT-DA. All rights reserved.
+# Licensed under the Apache License, Version 2.0
+# ---------------------------------------------------------------
+
+# The ema model update and the domain-mixing are based on:
 # https://github.com/vikolss/DACS
+# Copyright (c) 2020 vikolss. Licensed under the MIT License.
+# A copy of the license is available at resources/license_dacs
 
 import math
 import os
@@ -25,6 +32,9 @@ from mmseg.models.utils.dacs_transforms import (denorm, get_class_masks,
 from mmseg.models.utils.visualization import subplotimg
 from mmseg.utils.utils import downscale_label_ratio
 
+from mmseg.models.utils.proto_estimator import ProtoEstimator
+from mmseg.models.losses.contrastive_loss import contrast_preparations
+
 
 def _params_equal(ema_model, model):
     for ema_param, param in zip(ema_model.named_parameters(),
@@ -47,13 +57,16 @@ def calc_grad_magnitude(grads, norm_type=2.0):
 
 
 @UDA.register_module()
-class DACS(UDADecorator):
+class SePiCo(UDADecorator):
 
     def __init__(self, **cfg):
-        super(DACS, self).__init__(**cfg)
+        super(SePiCo, self).__init__(**cfg)
+        # basic setup
         self.local_iter = 0
         self.max_iters = cfg['max_iters']
         self.alpha = cfg['alpha']
+
+        # for ssl
         self.pseudo_threshold = cfg['pseudo_threshold']
         self.psweight_ignore_top = cfg['pseudo_weight_ignore_top']
         self.psweight_ignore_bottom = cfg['pseudo_weight_ignore_bottom']
@@ -68,9 +81,21 @@ class DACS(UDADecorator):
         self.debug_img_interval = cfg['debug_img_interval']
         self.print_grad_magnitude = cfg['print_grad_magnitude']
         assert self.mix == 'class'
+        self.enable_self_training = cfg['enable_self_training']
+        self.enable_strong_aug = cfg['enable_strong_aug']
+        self.push_off_self_training = cfg.get('push_off_self_training', False)
 
         self.debug_fdist_mask = None
         self.debug_gt_rescale = None
+
+        # configs for contrastive
+        self.proj_dim = cfg['model']['auxiliary_head']['channels']
+        self.contrast_mode = cfg['model']['auxiliary_head']['input_transform']
+        self.calc_layers = cfg['model']['auxiliary_head']['in_index']
+        self.num_classes = cfg['model']['decode_head']['num_classes']
+        self.enable_avg_pool = cfg['model']['auxiliary_head']['loss_decode']['use_avg_pool']
+        self.scale_min_ratio = cfg['model']['auxiliary_head']['loss_decode']['scale_min_ratio']
+        self.start_distribution_iter = cfg['start_distribution_iter']
 
         self.class_probs = {}
         ema_cfg = deepcopy(cfg['model'])
@@ -80,6 +105,19 @@ class DACS(UDADecorator):
             self.imnet_model = build_segmentor(deepcopy(cfg['model']))
         else:
             self.imnet_model = None
+
+        # BankCL memory length
+        self.memory_length = cfg.get('memory_length', 0)  # 0 means no memory bank
+
+        # init distribution
+        if self.contrast_mode == 'multiple_select':
+            self.feat_distributions = {}
+            for idx in range(len(self.calc_layers)):
+                self.feat_distributions[idx] = ProtoEstimator(dim=self.proj_dim, class_num=self.num_classes,
+                                                              memory_length=self.memory_length)
+        else:  # 'resize_concat' or None
+            self.feat_distributions = ProtoEstimator(dim=self.proj_dim, class_num=self.num_classes,
+                                                     memory_length=self.memory_length)
 
     def get_ema_model(self):
         return get_module(self.ema_model)
@@ -227,20 +265,81 @@ class DACS(UDADecorator):
             'std': stds[0].unsqueeze(0)
         }
 
-        # Train on source images
-        clean_losses = self.get_model().forward_train(
-            img, img_metas, gt_semantic_seg, return_feat=True)
-        src_feat = clean_losses.pop('features')
-        clean_loss, clean_log_vars = self._parse_losses(clean_losses)
-        log_vars.update(clean_log_vars)
-        clean_loss.backward(retain_graph=self.enable_fdist)
-        if self.print_grad_magnitude:
-            params = self.get_model().backbone.parameters()
-            seg_grads = [
-                p.grad.detach().clone() for p in params if p.grad is not None
-            ]
-            grad_mag = calc_grad_magnitude(seg_grads)
-            mmcv.print_log(f'Seg. Grad.: {grad_mag}', 'mmseg')
+        weak_img, weak_target_img = img.clone(), target_img.clone()
+        # Generate pseudo-label
+        for m in self.get_ema_model().modules():
+            if isinstance(m, _DropoutNd):
+                m.training = False
+            if isinstance(m, DropPath):
+                m.training = False
+
+        ema_target_logits = self.get_ema_model().encode_decode(weak_target_img, target_img_metas)
+        ema_target_softmax = torch.softmax(ema_target_logits.detach(), dim=1)
+        pseudo_prob, pseudo_label = torch.max(ema_target_softmax, dim=1)
+        ps_large_p = pseudo_prob.ge(self.pseudo_threshold).long() == 1
+        ps_size = np.size(np.array(pseudo_label.cpu()))
+        pseudo_weight = torch.sum(ps_large_p).item() / ps_size
+
+        if self.enable_strong_aug:
+            img, gt_semantic_seg = strong_transform(
+                strong_parameters,
+                data=img,
+                target=gt_semantic_seg
+            )
+            target_img, _ = strong_transform(
+                strong_parameters,
+                data=target_img,
+                target=pseudo_label.unsqueeze(1)
+            )
+
+        pseudo_weight = pseudo_weight * torch.ones(
+            pseudo_label.shape, device=dev)
+
+        if self.psweight_ignore_top > 0:
+            # Don't trust pseudo-labels in regions with potential
+            # rectification artifacts. This can lead to a pseudo-label
+            # drift from sky towards building or traffic light.
+            pseudo_weight[:, :self.psweight_ignore_top, :] = 0
+        if self.psweight_ignore_bottom > 0:
+            pseudo_weight[:, -self.psweight_ignore_bottom:, :] = 0
+        gt_pixel_weight = torch.ones(pseudo_weight.shape, device=dev)
+
+        ema_source_logits = self.get_ema_model().encode_decode(weak_img, img_metas)
+        ema_source_softmax = torch.softmax(ema_source_logits.detach(), dim=1)
+        _, source_pseudo_label = torch.max(ema_source_softmax, dim=1)
+
+        weak_gt_semantic_seg = gt_semantic_seg.clone().detach()
+
+        # update distribution
+        ema_src_feat = self.get_ema_model().extract_auxiliary_feat(weak_img)
+        mean = {}
+        covariance = {}
+        bank = {}
+        if self.contrast_mode == 'multiple_select':
+            for idx in range(len(self.calc_layers)):
+                feat, mask = contrast_preparations(ema_src_feat[idx], weak_gt_semantic_seg, self.enable_avg_pool,
+                                                   self.scale_min_ratio, self.num_classes, self.ignore_index)
+                self.feat_distributions[idx].update_proto(features=feat.detach(), labels=mask)
+                mean[idx] = self.feat_distributions[idx].Ave
+                covariance[idx] = self.feat_distributions[idx].CoVariance
+                bank[idx] = self.feat_distributions[idx].MemoryBank
+        else:  # 'resize_concat' or None
+            feat, mask = contrast_preparations(ema_src_feat, weak_gt_semantic_seg, self.enable_avg_pool,
+                                               self.scale_min_ratio, self.num_classes, self.ignore_index)
+            self.feat_distributions.update_proto(features=feat.detach(), labels=mask)
+            mean = self.feat_distributions.Ave
+            covariance = self.feat_distributions.CoVariance
+            bank = self.feat_distributions.MemoryBank
+
+        # source ce + cl
+        src_mode = 'dec'  # stands for ce only
+        if self.local_iter >= self.start_distribution_iter:
+            src_mode = 'all'  # stands for ce + cl
+        source_losses = self.get_model().forward_train(img, img_metas, gt_semantic_seg, return_feat=False,
+                                                       mean=mean, covariance=covariance, bank=bank, mode=src_mode)
+        source_loss, source_log_vars = self._parse_losses(source_losses)
+        log_vars.update(add_prefix(source_log_vars, 'src'))
+        source_loss.backward()
 
         # ImageNet feature distance
         if self.enable_fdist:
@@ -257,64 +356,41 @@ class DACS(UDADecorator):
                 grad_mag = calc_grad_magnitude(fd_grads)
                 mmcv.print_log(f'Fdist Grad.: {grad_mag}', 'mmseg')
 
-        # Generate pseudo-label
-        for m in self.get_ema_model().modules():
-            if isinstance(m, _DropoutNd):
-                m.training = False
-            if isinstance(m, DropPath):
-                m.training = False
-        ema_logits = self.get_ema_model().encode_decode(
-            target_img, target_img_metas)
+        # mixed ce (ssl)
+        if local_enable_self_training:
+            # Apply mixing
+            mixed_img, mixed_lbl = [None] * batch_size, [None] * batch_size
+            mix_masks = get_class_masks(gt_semantic_seg)
 
-        ema_softmax = torch.softmax(ema_logits.detach(), dim=1)
-        pseudo_prob, pseudo_label = torch.max(ema_softmax, dim=1)
-        ps_large_p = pseudo_prob.ge(self.pseudo_threshold).long() == 1
-        ps_size = np.size(np.array(pseudo_label.cpu()))
-        pseudo_weight = torch.sum(ps_large_p).item() / ps_size
-        pseudo_weight = pseudo_weight * torch.ones(
-            pseudo_prob.shape, device=dev)
+            for i in range(batch_size):
+                strong_parameters['mix'] = mix_masks[i]
+                mixed_img[i], mixed_lbl[i] = strong_transform(
+                    strong_parameters,
+                    data=torch.stack((weak_img[i], weak_target_img[i])),
+                    target=torch.stack((gt_semantic_seg[i][0], pseudo_label[i])))
+                _, pseudo_weight[i] = strong_transform(
+                    strong_parameters,
+                    target=torch.stack((gt_pixel_weight[i], pseudo_weight[i])))
+            mixed_img = torch.cat(mixed_img)
+            mixed_lbl = torch.cat(mixed_lbl)
 
-        if self.psweight_ignore_top > 0:
-            # Don't trust pseudo-labels in regions with potential
-            # rectification artifacts. This can lead to a pseudo-label
-            # drift from sky towards building or traffic light.
-            pseudo_weight[:, :self.psweight_ignore_top, :] = 0
-        if self.psweight_ignore_bottom > 0:
-            pseudo_weight[:, -self.psweight_ignore_bottom:, :] = 0
-        gt_pixel_weight = torch.ones((pseudo_weight.shape), device=dev)
-
-        # Apply mixing
-        mixed_img, mixed_lbl = [None] * batch_size, [None] * batch_size
-        mix_masks = get_class_masks(gt_semantic_seg)
-
-        for i in range(batch_size):
-            strong_parameters['mix'] = mix_masks[i]
-            mixed_img[i], mixed_lbl[i] = strong_transform(
-                strong_parameters,
-                data=torch.stack((img[i], target_img[i])),
-                target=torch.stack((gt_semantic_seg[i][0], pseudo_label[i])))
-            _, pseudo_weight[i] = strong_transform(
-                strong_parameters,
-                target=torch.stack((gt_pixel_weight[i], pseudo_weight[i])))
-        mixed_img = torch.cat(mixed_img)
-        mixed_lbl = torch.cat(mixed_lbl)
-
-        # Train on mixed images
-        mix_losses = self.get_model().forward_train(
-            mixed_img, img_metas, mixed_lbl, pseudo_weight, return_feat=True)
-        mix_losses.pop('features')
-        mix_losses = add_prefix(mix_losses, 'mix')
-        mix_loss, mix_log_vars = self._parse_losses(mix_losses)
-        log_vars.update(mix_log_vars)
-        mix_loss.backward()
+            # Train on mixed images
+            mix_losses = self.get_model().forward_train(mixed_img, img_metas, mixed_lbl, pseudo_weight,
+                                                        return_feat=False, mode='dec')
+            mix_loss, mix_log_vars = self._parse_losses(mix_losses)
+            log_vars.update(add_prefix(mix_log_vars, 'mix'))
+            mix_loss.backward()
 
         if self.local_iter % self.debug_img_interval == 0:
-            out_dir = os.path.join(self.train_cfg['work_dir'],
-                                   'class_mix_debug')
+            out_dir = os.path.join(self.train_cfg['work_dir'], 'visualize_meta')
             os.makedirs(out_dir, exist_ok=True)
             vis_img = torch.clamp(denorm(img, means, stds), 0, 1)
             vis_trg_img = torch.clamp(denorm(target_img, means, stds), 0, 1)
-            vis_mixed_img = torch.clamp(denorm(mixed_img, means, stds), 0, 1)
+            if local_enable_self_training:
+                vis_mixed_img = torch.clamp(denorm(mixed_img, means, stds), 0, 1)
+            ema_src_logits = self.get_ema_model().encode_decode(weak_img, img_metas)
+            ema_softmax = torch.softmax(ema_src_logits.detach(), dim=1)
+            _, src_pseudo_label = torch.max(ema_softmax, dim=1)
             for j in range(batch_size):
                 rows, cols = 2, 5
                 fig, axs = plt.subplots(
@@ -330,39 +406,55 @@ class DACS(UDADecorator):
                         'left': 0
                     },
                 )
-                subplotimg(axs[0][0], vis_img[j], 'Source Image')
-                subplotimg(axs[1][0], vis_trg_img[j], 'Target Image')
+                subplotimg(axs[0][0], vis_img[j], f'{img_metas[j]["ori_filename"]}')
+                subplotimg(axs[1][0], vis_trg_img[j],
+                           f'{os.path.basename(target_img_metas[j]["ori_filename"]).replace("_leftImg8bit", "")}')
                 subplotimg(
                     axs[0][1],
-                    gt_semantic_seg[j],
-                    'Source Seg GT',
-                    cmap='zerowaste')
+                    src_pseudo_label[j],
+                    'Source Pseudo Label',
+                    cmap='cityscapes',
+                    nc=self.num_classes)
                 subplotimg(
                     axs[1][1],
                     pseudo_label[j],
-                    'Target Seg (Pseudo) GT',
-                    cmap='zerowaste')
-                subplotimg(axs[0][2], vis_mixed_img[j], 'Mixed Image')
+                    'Target Pseudo Label',
+                    cmap='cityscapes',
+                    nc=self.num_classes)
                 subplotimg(
-                    axs[1][2], mix_masks[j][0], 'Domain Mask', cmap='gray')
-                # subplotimg(axs[0][3], pred_u_s[j], "Seg Pred",
-                #            cmap="zerowaste")
-                subplotimg(
-                    axs[1][3], mixed_lbl[j], 'Seg Targ', cmap='zerowaste')
+                    axs[0][2],
+                    gt_semantic_seg[j],
+                    'Source Seg GT',
+                    cmap='cityscapes',
+                    nc=self.num_classes)
+                if target_gt_semantic_seg.dim() > 1:
+                    subplotimg(
+                        axs[1][2],
+                        target_gt_semantic_seg[j],
+                        'Target Seg GT',
+                        cmap='cityscapes',
+                        nc=self.num_classes
+                    )
                 subplotimg(
                     axs[0][3], pseudo_weight[j], 'Pseudo W.', vmin=0, vmax=1)
-                if self.debug_fdist_mask is not None:
+                if local_enable_self_training:
+                    subplotimg(
+                        axs[1][3],
+                        mix_masks[j][0],
+                        'Mixed Mask',
+                        cmap='gray'
+                    )
                     subplotimg(
                         axs[0][4],
-                        self.debug_fdist_mask[j][0],
-                        'FDist Mask',
-                        cmap='gray')
-                if self.debug_gt_rescale is not None:
+                        vis_mixed_img[j],
+                        'Mixed ST Image')
                     subplotimg(
                         axs[1][4],
-                        self.debug_gt_rescale[j],
-                        'Scaled GT',
-                        cmap='zerowaste')
+                        mixed_lbl[j],
+                        'Mixed ST Label',
+                        cmap='cityscapes',
+                        nc=self.num_classes
+                    )
                 for ax in axs.flat:
                     ax.axis('off')
                 plt.savefig(
