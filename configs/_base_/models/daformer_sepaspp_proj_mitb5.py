@@ -46,7 +46,7 @@ model = dict(
         align_corners=False,
         loss_decode=dict(
             type='ContrastiveLoss', use_dist=False, use_bank=False, use_reg=False,
-            use_avg_pool=True, scale_min_ratio=0.75, num_classes=19,
+            use_avg_pool=True, scale_min_ratio=0.75, num_classes=5,
             contrast_temp=100., loss_weight=1.0, reg_relative_weight=0.01)),
     # model training and testing settings
     train_cfg=dict(),
