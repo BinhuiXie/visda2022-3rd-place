@@ -432,7 +432,7 @@ def generate_experiment_cfgs(id):
             ('zerov1', 'zerov2'),
         ]
         architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
-        uda = 'sepico'
+        udas = ['sepico', 'sepico_fdthings_zerowaste']
         # aux
         num_convs = 2
         modes = [
@@ -448,7 +448,7 @@ def generate_experiment_cfgs(id):
             (True, False),  # DistCL
         ]
         # results
-        for seed, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, modes, methods, datasets):
+        for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods, datasets):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
             cfgs.append(cfg)
@@ -461,7 +461,7 @@ def generate_experiment_cfgs(id):
             ('zerov1', 'zerov2'),
         ]
         architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
-        uda = 'sepico'
+        udas = ['sepico', 'sepico_fdthings_zerowaste']
         # aux
         num_convs = 2
         modes = [
@@ -477,7 +477,8 @@ def generate_experiment_cfgs(id):
             (False, True),  # BankCL
         ]
         # results
-        for seed, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, modes, methods, datasets):
+        for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods,
+                                                                                         datasets):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
             cfgs.append(cfg)
@@ -490,7 +491,7 @@ def generate_experiment_cfgs(id):
             ('zerov1', 'zerov2'),
         ]
         architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
-        uda = 'sepico'
+        udas = ['sepico', 'sepico_fdthings_zerowaste']
         # aux
         num_convs = 2
         modes = [
@@ -506,7 +507,7 @@ def generate_experiment_cfgs(id):
             (False, False),  # ProtoCL
         ]
         # results
-        for seed, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, modes, methods, datasets):
+        for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods, datasets):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
             cfgs.append(cfg)
