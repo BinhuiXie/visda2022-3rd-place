@@ -448,7 +448,7 @@ def generate_experiment_cfgs(id):
             (True, False),  # DistCL
         ]
         # results
-        for seed, (use_dist, use_bank), (source, target) in itertools.product(seeds, methods, datasets):
+        for seed, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, modes, methods, datasets):
             cfg = config_from_vars()
             cfgs.append(cfg)
     # -------------------------------------------------------------------------
@@ -476,7 +476,7 @@ def generate_experiment_cfgs(id):
             (False, True),  # BankCL
         ]
         # results
-        for seed, (use_dist, use_bank), (source, target) in itertools.product(seeds, methods, datasets):
+        for seed, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, modes, methods, datasets):
             cfg = config_from_vars()
             cfgs.append(cfg)
     # -------------------------------------------------------------------------
@@ -504,7 +504,7 @@ def generate_experiment_cfgs(id):
             (False, False),  # ProtoCL
         ]
         # results
-        for seed, (use_dist, use_bank), (source, target) in itertools.product(seeds, methods, datasets):
+        for seed, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, modes, methods, datasets):
             cfg = config_from_vars()
             cfgs.append(cfg)
     else:
