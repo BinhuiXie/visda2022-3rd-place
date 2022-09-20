@@ -449,6 +449,7 @@ def generate_experiment_cfgs(id):
         ]
         # results
         for seed, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, modes, methods, datasets):
+            in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
             cfgs.append(cfg)
     # -------------------------------------------------------------------------
@@ -477,6 +478,7 @@ def generate_experiment_cfgs(id):
         ]
         # results
         for seed, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, modes, methods, datasets):
+            in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
             cfgs.append(cfg)
     # -------------------------------------------------------------------------
@@ -505,6 +507,7 @@ def generate_experiment_cfgs(id):
         ]
         # results
         for seed, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, modes, methods, datasets):
+            in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
             cfgs.append(cfg)
     else:
