@@ -223,8 +223,7 @@ class SePiCo(UDADecorator):
         feat_log.pop('loss', None)
         return feat_loss, feat_log
 
-    def forward_train(self, img, img_metas, gt_semantic_seg, target_img,
-                      target_img_metas):
+    def forward_train(self, img, img_metas, gt_semantic_seg, target_img, target_img_metas):
         """Forward function for training.
 
         Args:
@@ -335,26 +334,33 @@ class SePiCo(UDADecorator):
         src_mode = 'dec'  # stands for ce only
         if self.local_iter >= self.start_distribution_iter:
             src_mode = 'all'  # stands for ce + cl
-        source_losses = self.get_model().forward_train(img, img_metas, gt_semantic_seg, return_feat=False,
+        source_losses = self.get_model().forward_train(img, img_metas, gt_semantic_seg, return_feat=True,
                                                        mean=mean, covariance=covariance, bank=bank, mode=src_mode)
+        src_feat = source_losses.pop('features')
         source_loss, source_log_vars = self._parse_losses(source_losses)
         log_vars.update(add_prefix(source_log_vars, 'src'))
         source_loss.backward()
 
+        if self.local_iter >= self.start_distribution_iter:
+            # target cl
+            pseudo_lbl = pseudo_label.clone()  # pseudo label should not be overwritten
+            pseudo_lbl[pseudo_weight == 0.] = self.ignore_index
+            pseudo_lbl = pseudo_lbl.unsqueeze(1)
+            target_losses = self.get_model().forward_train(target_img, target_img_metas, pseudo_lbl, return_feat=False,
+                                                           mean=mean, covariance=covariance, bank=bank, mode='aux')
+            target_loss, target_log_vars = self._parse_losses(target_losses)
+            log_vars.update(add_prefix(target_log_vars, 'tgt'))
+            target_loss.backward()
+
         # ImageNet feature distance
         if self.enable_fdist:
-            feat_loss, feat_log = self.calc_feat_dist(img, gt_semantic_seg,
-                                                      src_feat)
+            feat_loss, feat_log = self.calc_feat_dist(img, gt_semantic_seg, src_feat)
             feat_loss.backward()
             log_vars.update(add_prefix(feat_log, 'src'))
-            if self.print_grad_magnitude:
-                params = self.get_model().backbone.parameters()
-                fd_grads = [
-                    p.grad.detach() for p in params if p.grad is not None
-                ]
-                fd_grads = [g2 - g1 for g1, g2 in zip(seg_grads, fd_grads)]
-                grad_mag = calc_grad_magnitude(fd_grads)
-                mmcv.print_log(f'Fdist Grad.: {grad_mag}', 'mmseg')
+
+        local_enable_self_training = \
+            self.enable_self_training and \
+            (not self.push_off_self_training or self.local_iter >= self.start_distribution_iter)
 
         # mixed ce (ssl)
         if local_enable_self_training:
@@ -381,86 +387,85 @@ class SePiCo(UDADecorator):
             log_vars.update(add_prefix(mix_log_vars, 'mix'))
             mix_loss.backward()
 
-        if self.local_iter % self.debug_img_interval == 0:
-            out_dir = os.path.join(self.train_cfg['work_dir'], 'visualize_meta')
-            os.makedirs(out_dir, exist_ok=True)
-            vis_img = torch.clamp(denorm(img, means, stds), 0, 1)
-            vis_trg_img = torch.clamp(denorm(target_img, means, stds), 0, 1)
-            if local_enable_self_training:
-                vis_mixed_img = torch.clamp(denorm(mixed_img, means, stds), 0, 1)
-            ema_src_logits = self.get_ema_model().encode_decode(weak_img, img_metas)
-            ema_softmax = torch.softmax(ema_src_logits.detach(), dim=1)
-            _, src_pseudo_label = torch.max(ema_softmax, dim=1)
-            for j in range(batch_size):
-                rows, cols = 2, 5
-                fig, axs = plt.subplots(
-                    rows,
-                    cols,
-                    figsize=(3 * cols, 3 * rows),
-                    gridspec_kw={
-                        'hspace': 0.1,
-                        'wspace': 0,
-                        'top': 0.95,
-                        'bottom': 0,
-                        'right': 1,
-                        'left': 0
-                    },
-                )
-                subplotimg(axs[0][0], vis_img[j], f'{img_metas[j]["ori_filename"]}')
-                subplotimg(axs[1][0], vis_trg_img[j],
-                           f'{os.path.basename(target_img_metas[j]["ori_filename"]).replace("_leftImg8bit", "")}')
-                subplotimg(
-                    axs[0][1],
-                    src_pseudo_label[j],
-                    'Source Pseudo Label',
-                    cmap='cityscapes',
-                    nc=self.num_classes)
-                subplotimg(
-                    axs[1][1],
-                    pseudo_label[j],
-                    'Target Pseudo Label',
-                    cmap='cityscapes',
-                    nc=self.num_classes)
-                subplotimg(
-                    axs[0][2],
-                    gt_semantic_seg[j],
-                    'Source Seg GT',
-                    cmap='cityscapes',
-                    nc=self.num_classes)
-                if target_gt_semantic_seg.dim() > 1:
-                    subplotimg(
-                        axs[1][2],
-                        target_gt_semantic_seg[j],
-                        'Target Seg GT',
-                        cmap='cityscapes',
-                        nc=self.num_classes
-                    )
-                subplotimg(
-                    axs[0][3], pseudo_weight[j], 'Pseudo W.', vmin=0, vmax=1)
-                if local_enable_self_training:
-                    subplotimg(
-                        axs[1][3],
-                        mix_masks[j][0],
-                        'Mixed Mask',
-                        cmap='gray'
-                    )
-                    subplotimg(
-                        axs[0][4],
-                        vis_mixed_img[j],
-                        'Mixed ST Image')
-                    subplotimg(
-                        axs[1][4],
-                        mixed_lbl[j],
-                        'Mixed ST Label',
-                        cmap='cityscapes',
-                        nc=self.num_classes
-                    )
-                for ax in axs.flat:
-                    ax.axis('off')
-                plt.savefig(
-                    os.path.join(out_dir,
-                                 f'{(self.local_iter + 1):06d}_{j}.png'))
-                plt.close()
+        # if self.local_iter % self.debug_img_interval == 0:
+        #     out_dir = os.path.join(self.train_cfg['work_dir'], 'visualize_meta')
+        #     os.makedirs(out_dir, exist_ok=True)
+        #     vis_img = torch.clamp(denorm(img, means, stds), 0, 1)
+        #     vis_trg_img = torch.clamp(denorm(target_img, means, stds), 0, 1)
+        #     if local_enable_self_training:
+        #         vis_mixed_img = torch.clamp(denorm(mixed_img, means, stds), 0, 1)
+        #     ema_src_logits = self.get_ema_model().encode_decode(weak_img, img_metas)
+        #     ema_softmax = torch.softmax(ema_src_logits.detach(), dim=1)
+        #     _, src_pseudo_label = torch.max(ema_softmax, dim=1)
+        #     for j in range(batch_size):
+        #         rows, cols = 2, 5
+        #         fig, axs = plt.subplots(
+        #             rows,
+        #             cols,
+        #             figsize=(3 * cols, 3 * rows),
+        #             gridspec_kw={
+        #                 'hspace': 0.1,
+        #                 'wspace': 0,
+        #                 'top': 0.95,
+        #                 'bottom': 0,
+        #                 'right': 1,
+        #                 'left': 0
+        #             },
+        #         )
+        #         subplotimg(axs[0][0], vis_img[j], f'{img_metas[j]["ori_filename"]}')
+        #         subplotimg(axs[1][0], vis_trg_img[j],
+        #                    f'{os.path.basename(target_img_metas[j]["ori_filename"]).replace("_leftImg8bit", "")}')
+        #         subplotimg(
+        #             axs[0][1],
+        #             src_pseudo_label[j],
+        #             'Source Pseudo Label',
+        #             cmap='cityscapes',
+        #             nc=self.num_classes)
+        #         subplotimg(
+        #             axs[1][1],
+        #             pseudo_label[j],
+        #             'Target Pseudo Label',
+        #             cmap='cityscapes',
+        #             nc=self.num_classes)
+        #         subplotimg(
+        #             axs[0][2],
+        #             gt_semantic_seg[j],
+        #             'Source Seg GT',
+        #             cmap='cityscapes',
+        #             nc=self.num_classes)
+        #         subplotimg(
+        #                 axs[1][2],
+        #                 gt_semantic_seg[j],
+        #                 'Source Seg GT',
+        #                 cmap='cityscapes',
+        #                 nc=self.num_classes
+        #             )
+        #         subplotimg(
+        #             axs[0][3], pseudo_weight[j], 'Pseudo W.', vmin=0, vmax=1)
+        #         if local_enable_self_training:
+        #             subplotimg(
+        #                 axs[1][3],
+        #                 mix_masks[j][0],
+        #                 'Mixed Mask',
+        #                 cmap='gray'
+        #             )
+        #             subplotimg(
+        #                 axs[0][4],
+        #                 vis_mixed_img[j],
+        #                 'Mixed ST Image')
+        #             subplotimg(
+        #                 axs[1][4],
+        #                 mixed_lbl[j],
+        #                 'Mixed ST Label',
+        #                 cmap='cityscapes',
+        #                 nc=self.num_classes
+        #             )
+        #         for ax in axs.flat:
+        #             ax.axis('off')
+        #         plt.savefig(
+        #             os.path.join(out_dir,
+        #                          f'{(self.local_iter + 1):06d}_{j}.png'))
+        #         plt.close()
         self.local_iter += 1
 
         return log_vars
