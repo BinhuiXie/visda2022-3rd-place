@@ -105,6 +105,10 @@ class SePiCo(UDADecorator):
         else:
             self.imnet_model = None
 
+        # feature storage for contrastive
+        self.feat_distributions = None
+        self.ignore_index = 255
+
         # BankCL memory length
         self.memory_length = cfg.get('memory_length', 0)  # 0 means no memory bank
 
