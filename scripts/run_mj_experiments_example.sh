@@ -7,6 +7,13 @@ sh checkout.sh
 # To run an experiment, first set the parameters in `mj_experiments.py` and take the exp id here
 # e.g., for exp 1
 CUDA_VISIBLE_DEVICES=0 nohup python run_mj_experiments.py --exp 1 >mjlogs/log1.log >&1 &
+
+
+# 2022.9.21 run the following scripts, 2022.9.22 waiting for testing
+CUDA_VISIBLE_DEVICES=7 nohup python run_mj_experiments.py --exp 7 >mjlogs/exp7_FD.log >&1 &
+CUDA_VISIBLE_DEVICES=6 nohup python run_mj_experiments.py --exp 8 >mjlogs/exp8_FD.log >&1 &
+CUDA_VISIBLE_DEVICES=5 nohup python run_mj_experiments.py --exp 9 >mjlogs/exp9_FD.log >&1 &
+
 # The working directory is set to `./work_dirs_mj`. Change it in run_mj_experiments.py if you would like to.
 # The previous logs are saved to `mjlogs`. My preference for this step is:
 ## CUDA_VISIBLE_DEVICES=0 nohup python run_mj_experiments.py --exp 1 > mjlogs/exp1.log >&1 &

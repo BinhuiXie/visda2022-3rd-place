@@ -342,7 +342,7 @@ class SePiCo(UDADecorator):
         src_feat = source_losses.pop('features')
         source_loss, source_log_vars = self._parse_losses(source_losses)
         log_vars.update(add_prefix(source_log_vars, 'src'))
-        source_loss.backward()
+        source_loss.backward(retain_graph=self.enable_fdist)
 
         if self.local_iter >= self.start_distribution_iter:
             # target cl

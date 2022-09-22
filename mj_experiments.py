@@ -432,7 +432,8 @@ def generate_experiment_cfgs(id):
             ('zerov1', 'zerov2'),
         ]
         architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
-        udas = ['sepico', 'sepico_fdthings_zerowaste']
+        # udas = ['sepico', 'sepico_fdthings_zerowaste']
+        udas = ['sepico_fdthings_zerowaste']  # fix backword twice bug
         # aux
         num_convs = 2
         modes = [
@@ -461,7 +462,8 @@ def generate_experiment_cfgs(id):
             ('zerov1', 'zerov2'),
         ]
         architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
-        udas = ['sepico', 'sepico_fdthings_zerowaste']
+        # udas = ['sepico', 'sepico_fdthings_zerowaste']
+        udas = ['sepico_fdthings_zerowaste']  # fix backword twice bug
         # aux
         num_convs = 2
         modes = [
@@ -491,7 +493,8 @@ def generate_experiment_cfgs(id):
             ('zerov1', 'zerov2'),
         ]
         architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
-        udas = ['sepico', 'sepico_fdthings_zerowaste']
+        # udas = ['sepico', 'sepico_fdthings_zerowaste']
+        udas = ['sepico_fdthings_zerowaste']  # fix backword twice bug
         # aux
         num_convs = 2
         modes = [
