@@ -511,6 +511,96 @@ def generate_experiment_cfgs(id):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
             cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # try sepico (DistCL)  syn+z1 t0 z2
+    # -------------------------------------------------------------------------
+    elif id == 10:
+        seeds = [0]
+        datasets = [
+            ('synaugzerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
+        udas = ['sepico', 'sepico_fdthings_zerowaste']
+        # aux
+        num_convs = 2
+        modes = [
+            # in_channels, contrast_indexes, contrast_mode
+            ([64, 128, 320, 512], [0, 1, 2, 3], 'resize_concat'),  # fusion
+        ]
+        # reg
+        use_reg = True
+        reg_relative_weight = 1.0
+        # contrastive variants
+        methods = [
+            # use_dist, use_bank
+            (True, False),  # DistCL
+        ]
+        # results
+        for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods,
+                                                                                         datasets):
+            in_channels, contrast_indexes, contrast_mode = mode
+            cfg = config_from_vars()
+            cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # try sepico (BankCL)
+    # -------------------------------------------------------------------------
+    elif id == 11:
+        seeds = [0]
+        datasets = [
+            ('synaugzerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
+        udas = ['sepico', 'sepico_fdthings_zerowaste']
+        # aux
+        num_convs = 2
+        modes = [
+            # in_channels, contrast_indexes, contrast_mode
+            ([64, 128, 320, 512], [0, 1, 2, 3], 'resize_concat'),  # fusion
+        ]
+        # reg
+        use_reg = True
+        reg_relative_weight = 1.0
+        # contrastive variants
+        methods = [
+            # use_dist, use_bank
+            (False, True),  # BankCL
+        ]
+        # results
+        for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods,
+                                                                                         datasets):
+            in_channels, contrast_indexes, contrast_mode = mode
+            cfg = config_from_vars()
+            cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # try sepico (ProtoCL)
+    # -------------------------------------------------------------------------
+    elif id == 12:
+        seeds = [0]
+        datasets = [
+            ('synaugzerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
+        udas = ['sepico', 'sepico_fdthings_zerowaste']
+        # aux
+        num_convs = 2
+        modes = [
+            # in_channels, contrast_indexes, contrast_mode
+            ([64, 128, 320, 512], [0, 1, 2, 3], 'resize_concat'),  # fusion
+        ]
+        # reg
+        use_reg = True
+        reg_relative_weight = 1.0
+        # contrastive variants
+        methods = [
+            # use_dist, use_bank
+            (False, False),  # ProtoCL
+        ]
+        # results
+        for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods,
+                                                                                         datasets):
+            in_channels, contrast_indexes, contrast_mode = mode
+            cfg = config_from_vars()
+            cfgs.append(cfg)
     else:
         raise NotImplementedError('Unknown id {}'.format(id))
 
