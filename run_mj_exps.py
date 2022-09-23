@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     # Training with Predefined Config
     if args.config is not None:
-        setproctitle.setproctitle(f'VisDA MJ#CFG: {args.config}')
+        setproctitle.setproctitle(f'VisDA MJ2#CFG: {args.config}')
         cfg = Config.fromfile(args.config)
         # Specify Name and Work Directory
         exp_name = f'{args.machine}-{cfg["exp"]}'
@@ -75,7 +75,7 @@ if __name__ == '__main__':
 
     # Training with Generated Configs from experiments.py
     if args.exp is not None:
-        setproctitle.setproctitle(f'VisDA MJ#EXP: {args.exp}')
+        setproctitle.setproctitle(f'VisDA MJ2#EXP: {args.exp}')
         exp_name = f'{args.machine}-exp{args.exp}'
         cfgs = generate_experiment_cfgs(args.exp)
         # Generate Configs
