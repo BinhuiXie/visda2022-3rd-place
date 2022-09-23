@@ -8,8 +8,8 @@ ifm = IDWT(mode='zero', wave='haar').cuda()
 
 def dwt_copy_paste(mask, copy_img, paste_img, alpha=0.5):
     with torch.no_grad():
-        Yl_copy, Yh_copy = xfm(copy_img).detach()
-        Yl_paste, Yh_paste = xfm(paste_img).detach()
+        Yl_copy, Yh_copy = xfm(copy_img.detach())
+        Yl_paste, Yh_paste = xfm(paste_img.detach())
 
         Yl_mix = Yl_paste.clone()
         Yl_mix[mask] = Yl_copy[mask] * alpha + Yl_paste[mask] * (1 - alpha)
