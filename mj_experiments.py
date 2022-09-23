@@ -160,6 +160,9 @@ def generate_experiment_cfgs(id):
         if method_name in uda and rcs_T is not None:
             cfg = setup_rcs(cfg, rcs_T)
 
+        if method_name in uda and dwt_alpha is not None:
+            cfg['uda']['dwt_alpha'] = dwt_alpha
+
         if method_name in uda:
             cfg['uda']['start_distribution_iter'] = start_distribution_iter
             if use_bank:
@@ -290,6 +293,9 @@ def generate_experiment_cfgs(id):
     contrastive_temperature = 100.
     contrastive_weight = 1.0
     reg_relative_weight = 1.0  # reg_weight = reg_relative_weight * loss_weight in auxiliary head
+
+    # dwt mix
+    dwt_alpha = None
 
     architecture = None
     workers_per_gpu = 4
@@ -602,6 +608,57 @@ def generate_experiment_cfgs(id):
         for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods,
                                                                                          datasets):
             in_channels, contrast_indexes, contrast_mode = mode
+            cfg = config_from_vars()
+            cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # dwt mix dwt_alpha=0.5
+    # -------------------------------------------------------------------------
+    elif id == 13:
+        seeds = [0]
+        datasets = [
+            ('zerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp', 'mitb5')
+        uda = 'dacs_a999_fdthings_dwt_zerowaste'
+        # rcs_T = 0.01
+        plcrop = True
+        dwt_alpha = 0.5
+        for (source, target), seed in \
+                itertools.product(datasets, seeds):
+            cfg = config_from_vars()
+            cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # dwt mix dwt_alpha='rand'
+    # -------------------------------------------------------------------------
+    elif id == 14:
+        seeds = [0]
+        datasets = [
+            ('zerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp', 'mitb5')
+        uda = 'dacs_a999_fdthings_dwt_zerowaste'
+        # rcs_T = 0.01
+        plcrop = True
+        dwt_alpha = 'rand'
+        for (source, target), seed in \
+                itertools.product(datasets, seeds):
+            cfg = config_from_vars()
+            cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # dwt mix dwt_alpha='fade'
+    # -------------------------------------------------------------------------
+    elif id == 15:
+        seeds = [0]
+        datasets = [
+            ('zerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp', 'mitb5')
+        uda = 'dacs_a999_fdthings_dwt_zerowaste'
+        # rcs_T = 0.01
+        plcrop = True
+        dwt_alpha = 'fade'
+        for (source, target), seed in \
+                itertools.product(datasets, seeds):
             cfg = config_from_vars()
             cfgs.append(cfg)
     else:

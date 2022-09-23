@@ -5,10 +5,32 @@ import numpy as np
 import torch
 import torch.nn as nn
 
+from mmseg.models.utils.wavelet import dwt_copy_paste
 
 def strong_transform(param, data=None, target=None):
     assert ((data is not None) or (target is not None))
     data, target = one_mix(mask=param['mix'], data=data, target=target)
+    data, target = color_jitter(
+        color_jitter=param['color_jitter'],
+        s=param['color_jitter_s'],
+        p=param['color_jitter_p'],
+        mean=param['mean'],
+        std=param['std'],
+        data=data,
+        target=target)
+    data, target = gaussian_blur(blur=param['blur'], data=data, target=target)
+    return data, target
+
+
+def strong_transform_dwt(param, data=None, target=None):
+    assert ((data is not None) or (target is not None))
+    data, target = dwt_mix(
+        mask=param['mix'],
+        mean=param['mean'],
+        std=param['std'],
+        alpha=param['alpha'],
+        data=data,
+        target=target)
     data, target = color_jitter(
         color_jitter=param['color_jitter'],
         s=param['color_jitter_s'],
@@ -45,6 +67,14 @@ def denorm_(img, mean, std):
 
 def renorm_(img, mean, std):
     img.mul_(255.0).sub_(mean).div_(std)
+
+
+def denorm_nok(img, mean, std):
+    img.mul_(std).add_(mean)
+
+
+def renorm_nok(img, mean, std):
+    img.sub_(mean).div_(std)
 
 
 def color_jitter(color_jitter, mean, std, data=None, target=None, s=.25, p=.2):
@@ -97,6 +127,20 @@ def get_class_masks(labels):
     return class_masks
 
 
+def get_class_masks_dwt(labels, ignore_labels=[0]):
+    class_masks = []
+    for label in labels:
+        classes = torch.unique(labels)
+        for cls in ignore_labels:
+            classes = classes[classes != cls]
+        nclasses = classes.shape[0]
+        class_choice = np.random.choice(
+            nclasses, int((nclasses + nclasses % 2) / 2), replace=False)
+        classes = classes[torch.Tensor(class_choice).long()]
+        class_masks.append(generate_class_mask(label, classes).unsqueeze(0))
+    return class_masks
+
+
 def generate_class_mask(label, classes):
     label, classes = torch.broadcast_tensors(label,
                                              classes.unsqueeze(1).unsqueeze(2))
@@ -112,6 +156,22 @@ def one_mix(mask, data=None, target=None):
         data = (stackedMask0 * data[0] +
                 (1 - stackedMask0) * data[1]).unsqueeze(0)
     if not (target is None):
+        stackedMask0, _ = torch.broadcast_tensors(mask[0], target[0])
+        target = (stackedMask0 * target[0] +
+                  (1 - stackedMask0) * target[1]).unsqueeze(0)
+    return data, target
+
+
+def dwt_mix(mask, mean, std, alpha=.5, data=None, target=None):
+    if mask is None:
+        return data, target
+    if data is not None:
+        stackedMask0, _ = torch.broadcast_tensors(mask[0], data[0])
+        denorm_nok(data, mean, std)
+        cpy_data, pst_data = data
+        data = dwt_copy_paste(stackedMask0, cpy_data, pst_data, alpha)
+        renorm_nok(data, mean, std)
+    if target is not None:
         stackedMask0, _ = torch.broadcast_tensors(mask[0], target[0])
         target = (stackedMask0 * target[0] +
                   (1 - stackedMask0) * target[1]).unsqueeze(0)
