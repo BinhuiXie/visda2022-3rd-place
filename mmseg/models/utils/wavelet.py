@@ -13,8 +13,7 @@ def dwt_copy_paste(mask, copy_img, paste_img, alpha=0.5):
         Yl_paste, Yh_paste = xfm(paste_img.detach())
 
         mask = F.interpolate(mask.unsqueeze(0).float(), scale_factor=0.5, mode='nearest').squeeze(0).long()
-        Yl_mix = Yl_paste.clone()
-        Yl_mix[mask] = Yl_copy[mask] * alpha + Yl_paste[mask] * (1 - alpha)
+        Yl_mix = mask * (alpha * Yl_copy + (1-alpha) * Yl_paste) + (1-mask) * Yl_paste
         Yh_mix = [torch.maximum(a, b) for (a, b) in zip(Yh_copy, Yh_paste)]
 
         mix_img = ifm((Yl_mix, Yh_mix)).detach()
