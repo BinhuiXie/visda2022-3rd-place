@@ -168,7 +168,7 @@ def dwt_mix(mask, mean, std, alpha=.5, data=None, target=None):
     if data is not None:
         stackedMask0, _ = torch.broadcast_tensors(mask[0], data[0])
         denorm_nok(data, mean, std)
-        cpy_data, pst_data = data
+        cpy_data, pst_data = data[0].unsqueeze(0), data[1].unsqueeze(0)
         data = dwt_copy_paste(stackedMask0, cpy_data, pst_data, alpha)
         renorm_nok(data, mean, std)
     if target is not None:
