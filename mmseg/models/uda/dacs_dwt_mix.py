@@ -20,8 +20,8 @@ from torch.nn.modules.dropout import _DropoutNd
 from mmseg.core import add_prefix
 from mmseg.models import UDA, build_segmentor
 from mmseg.models.uda.uda_decorator import UDADecorator, get_module
-from mmseg.models.utils.dacs_transforms import (denorm, get_class_masks,
-                                                get_mean_std, strong_transform)
+from mmseg.models.utils.dacs_transforms import (denorm, get_class_masks_dwt,
+                                                get_mean_std, strong_transform_dwt)
 from mmseg.models.utils.visualization import subplotimg
 from mmseg.utils.utils import downscale_label_ratio
 
