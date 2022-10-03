@@ -332,16 +332,16 @@ def generate_experiment_cfgs(id):
         use_reg = True
         start_distribution_iter = 3000   # maybe 0 or 1000
         contrastive_temperature = 100.  # maybe 0.07, 0.1, 1.0, 10., 1000.
-        contrastive_weights = [1.0, 1.0, 0.1]
-        reg_relative_weights = [1.0, 0, 0.1]
+        contrastive_weights = [0.1, 1.0, 1.0]
+        reg_relative_weights = [0.1, 0.0, 1.0]
         # contrastive variants
         methods = [
             # use_dist, use_bank
             (True, False),  # DistCL
         ]
         # results
-        for contrastive_weights, reg_relative_weight, seed, uda, mode, (use_dist, use_bank), (
-        source, target) in itertools.product(contrastive_weights, reg_relative_weights, seeds, udas, modes, methods,
+        for seed, contrastive_weights, reg_relative_weight, uda, mode, (use_dist, use_bank), (
+        source, target) in itertools.product(seeds, contrastive_weights, reg_relative_weights, udas, modes, methods,
                                              datasets):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
@@ -363,16 +363,16 @@ def generate_experiment_cfgs(id):
         use_reg = True
         start_distribution_iter = 3000
         contrastive_temperature = 100.
-        contrastive_weights = [1.0, 1.0, 0.1]
-        reg_relative_weights = [1.0, 0, 0.1]
+        contrastive_weights = [0.1, 1.0, 1.0]
+        reg_relative_weights = [0.1, 0.0, 1.0]
         # contrastive variants
         methods = [
             # use_dist, use_bank
             (False, True),  # BankCL
         ]
         # results
-        for contrastive_weights, reg_relative_weight, seed, uda, mode, (use_dist, use_bank), (
-        source, target) in itertools.product(contrastive_weights, reg_relative_weights, seeds, udas, modes, methods,
+        for seed, contrastive_weights, reg_relative_weight, uda, mode, (use_dist, use_bank), (
+        source, target) in itertools.product(seeds, contrastive_weights, reg_relative_weights, udas, modes, methods,
                                              datasets):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
@@ -394,16 +394,16 @@ def generate_experiment_cfgs(id):
         use_reg = True
         start_distribution_iter = 3000
         contrastive_temperature = 100.
-        contrastive_weights = [1.0, 1.0, 0.1]
-        reg_relative_weights = [1.0, 0, 0.1]
+        contrastive_weights = [0.1, 1.0, 1.0]
+        reg_relative_weights = [0.1, 0.0, 1.0]
         # contrastive variants
         methods = [
             # use_dist, use_bank
             (False, False),  # ProtoCL
         ]
         # results
-        for contrastive_weights, reg_relative_weight, seed, uda, mode, (use_dist, use_bank), (
-        source, target) in itertools.product(contrastive_weights, reg_relative_weights, seeds, udas, modes, methods,
+        for seed, contrastive_weights, reg_relative_weight, uda, mode, (use_dist, use_bank), (
+        source, target) in itertools.product(seeds, contrastive_weights, reg_relative_weights, udas, modes, methods,
                                              datasets):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
@@ -426,16 +426,16 @@ def generate_experiment_cfgs(id):
         use_reg = True
         start_distribution_iter = 3000  # maybe 0 or 1000
         contrastive_temperature = 100.  # maybe 0.07, 0.1, 1.0, 10., 1000.
-        contrastive_weights = [1.0, 1.0, 0.1]
-        reg_relative_weights = [1.0, 0, 0.1]
+        contrastive_weights = [0.1, 1.0, 1.0]
+        reg_relative_weights = [0.1, 0.0, 1.0]
         # contrastive variants
         methods = [
             # use_dist, use_bank
             (True, False),  # DistCL
         ]
         # results
-        for contrastive_weights, reg_relative_weight, seed, uda, mode, (use_dist, use_bank), (
-        source, target) in itertools.product(contrastive_weights, reg_relative_weights, seeds, udas, modes, methods,
+        for seed, contrastive_weights, reg_relative_weight, uda, mode, (use_dist, use_bank), (
+        source, target) in itertools.product(seeds, contrastive_weights, reg_relative_weights, udas, modes, methods,
                                              datasets):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
@@ -457,16 +457,16 @@ def generate_experiment_cfgs(id):
         use_reg = True
         start_distribution_iter = 3000
         contrastive_temperature = 100.
-        contrastive_weights = [1.0, 1.0, 0.1]
-        reg_relative_weights = [1.0, 0, 0.1]
+        contrastive_weights = [0.1, 1.0, 1.0]
+        reg_relative_weights = [0.1, 0.0, 1.0]
         # contrastive variants
         methods = [
             # use_dist, use_bank
             (False, True),  # BankCL
         ]
         # results
-        for contrastive_weights, reg_relative_weight, seed, uda, mode, (use_dist, use_bank), (
-        source, target) in itertools.product(contrastive_weights, reg_relative_weights, seeds, udas, modes, methods,
+        for seed, contrastive_weights, reg_relative_weight, uda, mode, (use_dist, use_bank), (
+        source, target) in itertools.product(seeds, contrastive_weights, reg_relative_weights, udas, modes, methods,
                                              datasets):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
@@ -489,15 +489,15 @@ def generate_experiment_cfgs(id):
         use_reg = True
         start_distribution_iter = 3000
         contrastive_temperature = 100.
-        contrastive_weights = [1.0, 1.0, 0.1]
-        reg_relative_weights = [1.0, 0, 0.1]
+        contrastive_weights = [0.1, 1.0, 1.0]
+        reg_relative_weights = [0.1, 0.0, 1.0]
         # contrastive variants
         methods = [
             # use_dist, use_bank
             (False, False),  # ProtoCL
         ]
         # results
-        for contrastive_weights, reg_relative_weight, seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(contrastive_weights, reg_relative_weights, seeds, udas, modes, methods,
+        for seed, contrastive_weights, reg_relative_weight, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, contrastive_weights, reg_relative_weights, udas, modes, methods,
                                                                                          datasets):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()

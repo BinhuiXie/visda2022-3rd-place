@@ -47,18 +47,18 @@ data = dict(
         ann_dir='sem_seg',
         pipeline=test_pipeline),
     # Phase 1 evaluate on zerowaste-v2 val set
-    test=dict(
-       type='ZeroWasteV2Dataset',
-            data_root='data/zerowaste-v2-splits/val',
-            img_dir='data',
-            ann_dir='sem_seg',
-            pipeline=test_pipeline)
+    # test=dict(
+    #    type='ZeroWasteV2Dataset',
+    #         data_root='data/zerowaste-v2-splits/val',
+    #         img_dir='data',
+    #         ann_dir='sem_seg',
+    #         pipeline=test_pipeline)
 
     # Final evaluate on zerowaste-v2 test set
-    # test = dict(
-    #     type='ZeroWasteV2Dataset',
-    #     data_root='data/zerowaste-v2-splits/val',
-    #     img_dir='data',
-    #     ann_dir='sem_seg',
-    #     pipeline=test_pipeline)
+    test = dict(
+        type='ZeroWasteV2Dataset',
+        data_root='data/zerowaste-v2-splits/test',
+        img_dir='data',
+        ann_dir='sem_seg',
+        pipeline=test_pipeline)
 )
