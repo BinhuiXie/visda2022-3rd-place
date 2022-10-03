@@ -160,7 +160,7 @@ def generate_experiment_cfgs(id):
         if rcs_T is not None:
             cfg = setup_rcs(cfg, rcs_T)
 
-            # sepico parameters
+        # sepico parameters
         if 'sepico' in uda:
             cfg['uda']['start_distribution_iter'] = start_distribution_iter
             if use_bank:
@@ -318,7 +318,7 @@ def generate_experiment_cfgs(id):
         datasets = [
             ('zerov1', 'zerov2'),
         ]
-        architecture, backbone = ('daformer_sepaspp', 'mitb5')
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
         udas = ['dacs_sepico', 'dacs_sepico_fdthings_zerowaste']
         modes = [
             # in_channels, contrast_indexes, contrast_mode
@@ -349,7 +349,7 @@ def generate_experiment_cfgs(id):
         datasets = [
             ('zerov1', 'zerov2'),
         ]
-        architecture, backbone = ('daformer_sepaspp', 'mitb5')
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
         udas = ['dacs_sepico', 'dacs_sepico_fdthings_zerowaste']
         modes = [
             # in_channels, contrast_indexes, contrast_mode
@@ -380,7 +380,7 @@ def generate_experiment_cfgs(id):
         datasets = [
             ('zerov1', 'zerov2'),
         ]
-        architecture, backbone = ('daformer_sepaspp', 'mitb5')
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
         udas = ['dacs_sepico', 'dacs_sepico_fdthings_zerowaste']
         modes = [
             # in_channels, contrast_indexes, contrast_mode
