@@ -48,15 +48,22 @@ if __name__ == '__main__':
     args = parser.parse_args()
     get_logger('mmseg', log_level=logging.ERROR)
     cfgs = generate_experiment_cfgs(args.exp)
+    print(cfgs)
     for cfg in cfgs:
         with open('configs/tmp_param.json', 'w') as f:
             json.dump(cfg, f)
         cfg = Config.fromfile('configs/tmp_param.json')
 
         model = build_segmentor(deepcopy(cfg['model']))
-        # model.init_weights()
-        # count_parameters(model)
+        model.init_weights()
+        count_parameters(model)
+        print('-'*20)
         print(f'Encoder {cfg["name_encoder"]}:')
         count_parameters(model.backbone)
         print(f'Decoder {cfg["name_decoder"]}:')
         count_parameters(model.decode_head)
+        try:
+            print(f'Projector {cfg["name_decoder"]}:')
+            count_parameters(model.auxiliary_head)
+        except:
+            print('No Projector Network!')
