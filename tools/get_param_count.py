@@ -5,7 +5,7 @@ import json
 import logging
 from copy import deepcopy
 
-from experiments import generate_experiment_cfgs
+from test_experiments import generate_experiment_cfgs
 from mmcv import Config, get_logger
 from prettytable import PrettyTable
 
