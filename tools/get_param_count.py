@@ -60,3 +60,5 @@ if __name__ == '__main__':
         count_parameters(model.backbone)
         print(f'Decoder {cfg["name_decoder"]}:')
         count_parameters(model.decode_head)
+        print(f'Projector {cfg["name_auxiliary"]}:')
+        count_parameters(model.auxiliary_head)

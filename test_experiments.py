@@ -285,6 +285,9 @@ def generate_experiment_cfgs(id):
     contrastive_weight = 1.0
     reg_relative_weight = 1.0  # reg_weight = reg_relative_weight * loss_weight in auxiliary head
 
+    # ensemble seeds
+    seeds = [42, 6926, 255, 65535, 2022]
+
     # -------------------------------------------------------------------------
     # source only
     # -------------------------------------------------------------------------
@@ -301,7 +304,6 @@ def generate_experiment_cfgs(id):
     # DAFormer (ours)
     # -------------------------------------------------------------------------
     elif id == 1:
-        seeds = [0]
         datasets = [
             ('zerov1', 'zerov2'),
         ]
@@ -314,12 +316,11 @@ def generate_experiment_cfgs(id):
     # SePiCo - DistCL w/ FD
     # -------------------------------------------------------------------------
     elif id == 2:
-        seeds = [0]
         datasets = [
             ('zerov1', 'zerov2'),
         ]
         architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
-        udas = ['dacs_sepico', 'dacs_sepico_fdthings_zerowaste']
+        udas = ['dacs_sepico_fdthings_zerowaste']
         modes = [
             # in_channels, contrast_indexes, contrast_mode
             ([64, 128, 320, 512], [0, 1, 2, 3], 'resize_concat'),  # fusion
@@ -328,29 +329,29 @@ def generate_experiment_cfgs(id):
         use_reg = True
         start_distribution_iter = 3000   # maybe 0 or 1000
         contrastive_temperature = 100.  # maybe 0.07, 0.1, 1.0, 10., 1000.
-        contrastive_weight = 1.0   # maybe 0.1, 0.01, 0.001
-        reg_relative_weight = 1.0   # maybe 0, 0.1, 0.01, 0.001
+        contrastive_weights = [1.0, 1.0, 0.1]
+        reg_relative_weights = [1.0, 0, 0.1]
         # contrastive variants
         methods = [
             # use_dist, use_bank
             (True, False),  # DistCL
         ]
         # results
-        for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods,
-                                                                                         datasets):
+        for contrastive_weights, reg_relative_weight, seed, uda, mode, (use_dist, use_bank), (
+        source, target) in itertools.product(contrastive_weights, reg_relative_weights, seeds, udas, modes, methods,
+                                             datasets):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
             cfgs.append(cfg)
     # -------------------------------------------------------------------------
-    # SePiCo - BankCL  w/ & w/o FD
+    # SePiCo - BankCL  w/ FD
     # -------------------------------------------------------------------------
     elif id == 3:
-        seeds = [0]
         datasets = [
             ('zerov1', 'zerov2'),
         ]
         architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
-        udas = ['dacs_sepico', 'dacs_sepico_fdthings_zerowaste']
+        udas = ['dacs_sepico_fdthings_zerowaste']
         modes = [
             # in_channels, contrast_indexes, contrast_mode
             ([64, 128, 320, 512], [0, 1, 2, 3], 'resize_concat'),  # fusion
@@ -359,29 +360,29 @@ def generate_experiment_cfgs(id):
         use_reg = True
         start_distribution_iter = 3000
         contrastive_temperature = 100.
-        contrastive_weight = 1.0
-        reg_relative_weight = 1.0
+        contrastive_weights = [1.0, 1.0, 0.1]
+        reg_relative_weights = [1.0, 0, 0.1]
         # contrastive variants
         methods = [
             # use_dist, use_bank
             (False, True),  # BankCL
         ]
         # results
-        for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods,
-                                                                                         datasets):
+        for contrastive_weights, reg_relative_weight, seed, uda, mode, (use_dist, use_bank), (
+        source, target) in itertools.product(contrastive_weights, reg_relative_weights, seeds, udas, modes, methods,
+                                             datasets):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
             cfgs.append(cfg)
     # -------------------------------------------------------------------------
-    # SePiCo - ProtCL  w/ & w/o FD
+    # SePiCo - ProtCL  w/ FD
     # -------------------------------------------------------------------------
     elif id == 4:
-        seeds = [0]
         datasets = [
             ('zerov1', 'zerov2'),
         ]
         architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
-        udas = ['dacs_sepico', 'dacs_sepico_fdthings_zerowaste']
+        udas = ['dacs_sepico_fdthings_zerowaste']
         modes = [
             # in_channels, contrast_indexes, contrast_mode
             ([64, 128, 320, 512], [0, 1, 2, 3], 'resize_concat'),  # fusion
@@ -390,20 +391,114 @@ def generate_experiment_cfgs(id):
         use_reg = True
         start_distribution_iter = 3000
         contrastive_temperature = 100.
-        contrastive_weight = 1.0
-        reg_relative_weight = 1.0
+        contrastive_weights = [1.0, 1.0, 0.1]
+        reg_relative_weights = [1.0, 0, 0.1]
         # contrastive variants
         methods = [
             # use_dist, use_bank
             (False, False),  # ProtoCL
         ]
         # results
-        for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods,
-                                                                                         datasets):
+        for contrastive_weights, reg_relative_weight, seed, uda, mode, (use_dist, use_bank), (
+        source, target) in itertools.product(contrastive_weights, reg_relative_weights, seeds, udas, modes, methods,
+                                             datasets):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
             cfgs.append(cfg)
 
+    # -------------------------------------------------------------------------
+    # SePiCo - DistCL w/o FD
+    # -------------------------------------------------------------------------
+    elif id == 5:
+        datasets = [
+            ('zerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
+        udas = ['dacs_sepico']
+        modes = [
+            # in_channels, contrast_indexes, contrast_mode
+            ([64, 128, 320, 512], [0, 1, 2, 3], 'resize_concat'),  # fusion
+        ]
+        # reg
+        use_reg = True
+        start_distribution_iter = 3000  # maybe 0 or 1000
+        contrastive_temperature = 100.  # maybe 0.07, 0.1, 1.0, 10., 1000.
+        contrastive_weights = [1.0, 1.0, 0.1]
+        reg_relative_weights = [1.0, 0, 0.1]
+        # contrastive variants
+        methods = [
+            # use_dist, use_bank
+            (True, False),  # DistCL
+        ]
+        # results
+        for contrastive_weights, reg_relative_weight, seed, uda, mode, (use_dist, use_bank), (
+        source, target) in itertools.product(contrastive_weights, reg_relative_weights, seeds, udas, modes, methods,
+                                             datasets):
+            in_channels, contrast_indexes, contrast_mode = mode
+            cfg = config_from_vars()
+            cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # SePiCo - BankCL  w/o FD
+    # -------------------------------------------------------------------------
+    elif id == 6:
+        datasets = [
+            ('zerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
+        udas = ['dacs_sepico_fdthings_zerowaste']
+        modes = [
+            # in_channels, contrast_indexes, contrast_mode
+            ([64, 128, 320, 512], [0, 1, 2, 3], 'resize_concat'),  # fusion
+        ]
+        # reg
+        use_reg = True
+        start_distribution_iter = 3000
+        contrastive_temperature = 100.
+        contrastive_weights = [1.0, 1.0, 0.1]
+        reg_relative_weights = [1.0, 0, 0.1]
+        # contrastive variants
+        methods = [
+            # use_dist, use_bank
+            (False, True),  # BankCL
+        ]
+        # results
+        for contrastive_weights, reg_relative_weight, seed, uda, mode, (use_dist, use_bank), (
+        source, target) in itertools.product(contrastive_weights, reg_relative_weights, seeds, udas, modes, methods,
+                                             datasets):
+            in_channels, contrast_indexes, contrast_mode = mode
+            cfg = config_from_vars()
+            cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # SePiCo - ProtCL  w/o FD
+    # -------------------------------------------------------------------------
+    elif id == 7:
+        seeds = [0]
+        datasets = [
+            ('zerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
+        udas = ['dacs_sepico_fdthings_zerowaste']
+        modes = [
+            # in_channels, contrast_indexes, contrast_mode
+            ([64, 128, 320, 512], [0, 1, 2, 3], 'resize_concat'),  # fusion
+        ]
+        # reg
+        use_reg = True
+        start_distribution_iter = 3000
+        contrastive_temperature = 100.
+        contrastive_weights = [1.0, 1.0, 0.1]
+        reg_relative_weights = [1.0, 0, 0.1]
+        # contrastive variants
+        methods = [
+            # use_dist, use_bank
+            (False, False),  # ProtoCL
+        ]
+        # results
+        for contrastive_weights, reg_relative_weight, seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(contrastive_weights, reg_relative_weights, seeds, udas, modes, methods,
+                                                                                         datasets):
+            in_channels, contrast_indexes, contrast_mode = mode
+            cfg = config_from_vars()
+            cfgs.append(cfg)
     else:
         raise NotImplementedError('Unknown id {}'.format(id))
 
