@@ -160,13 +160,13 @@ def generate_experiment_cfgs(id):
         if rcs_T is not None:
             cfg = setup_rcs(cfg, rcs_T)
 
+        cfg['model'].setdefault('decode_head', {})
         # sepico parameters
         if 'sepico' in uda:
             cfg['uda']['start_distribution_iter'] = start_distribution_iter
             if use_bank:
                 cfg['uda']['memory_length'] = memory_length
 
-            cfg['model'].setdefault('decode_head', {})
             cfg['model'].setdefault('auxiliary_head', {})
             cfg['model']['auxiliary_head']['in_channels'] = in_channels
             cfg['model']['auxiliary_head']['in_index'] = contrast_indexes
