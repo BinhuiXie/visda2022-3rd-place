@@ -141,7 +141,7 @@ def generate_experiment_cfgs(id):
         # Setup UDA config
         if uda == 'source-only':
             cfg['_base_'].append(
-                f'_base_/datasets/{source}_to_{target}_{crop}.py')
+                f'_base_/datasets/src_{source}_to_{target}_{crop}.py')
         else:
             cfg['_base_'].append(
                 f'_base_/datasets/uda_{source}_to_{target}_{crop}.py')
