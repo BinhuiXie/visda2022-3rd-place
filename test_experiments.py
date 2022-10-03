@@ -147,22 +147,23 @@ def generate_experiment_cfgs(id):
                 f'_base_/datasets/uda_{source}_to_{target}_{crop}.py')
             cfg['_base_'].append(f'_base_/uda/{uda}.py')
 
-            cfg['data'] = dict(
-                samples_per_gpu=batch_size,
-                workers_per_gpu=workers_per_gpu,
-                train={})
+        cfg['data'] = dict(
+            samples_per_gpu=batch_size,
+            workers_per_gpu=workers_per_gpu,
+            train={})
 
-        cfg.setdefault('uda', {})
-        if plcrop:
-            cfg['uda']['pseudo_weight_ignore_top'] = 15
-            cfg['uda']['pseudo_weight_ignore_bottom'] = 120
+        if 'dacs' in uda:
+            cfg.setdefault('uda', {})
+            if plcrop:
+                cfg['uda']['pseudo_weight_ignore_top'] = 15
+                cfg['uda']['pseudo_weight_ignore_bottom'] = 120
 
-        if rcs_T is not None:
+        if 'dacs' in uda and rcs_T is not None:
             cfg = setup_rcs(cfg, rcs_T)
 
-        cfg['model'].setdefault('decode_head', {})
         # sepico parameters
         if 'sepico' in uda:
+
             cfg['uda']['start_distribution_iter'] = start_distribution_iter
             if use_bank:
                 cfg['uda']['memory_length'] = memory_length
@@ -192,6 +193,8 @@ def generate_experiment_cfgs(id):
             cfg['uda']['enable_self_training'] = enable_self_training
 
         # Setup optimizer and schedule
+        if 'dacs' in uda:
+            cfg['optimizer_config'] = None  # Don't use outer optimizer
         cfg['_base_'].extend(
             [f'_base_/schedules/{opt}.py', f'_base_/schedules/{schedule}.py'])
         cfg['optimizer'] = {'lr': lr}
@@ -229,9 +232,9 @@ def generate_experiment_cfgs(id):
             else:
                 uda_mod += f'-l{contrast_indexes}-w{contrastive_weight}'
 
-        if rcs_T is not None:
+        if 'dacs' in uda and rcs_T is not None:
             uda_mod += f'_rcs{rcs_T}'
-        if plcrop:
+        if 'dacs' in uda and plcrop:
             uda_mod += '_cpl'
         if enable_self_training:
             uda_mod += '_self'
