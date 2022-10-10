@@ -506,6 +506,7 @@ def generate_experiment_cfgs(id):
     # SePiCo - DistCL w/o FD very small weight
     # -------------------------------------------------------------------------
     elif id == 8:
+        seeds = [42]
         datasets = [
             ('zerov1', 'zerov2'),
         ]
@@ -529,6 +530,130 @@ def generate_experiment_cfgs(id):
         # results
         for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods,
                                              datasets):
+            in_channels, contrast_indexes, contrast_mode = mode
+            cfg = config_from_vars()
+            cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # SePiCo - DistCL w/o FD very small weight
+    # -------------------------------------------------------------------------
+    elif id == 9:
+        seeds = [6926]
+        datasets = [
+            ('zerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
+        udas = ['dacs_sepico']
+        modes = [
+            # in_channels, contrast_indexes, contrast_mode
+            ([64, 128, 320, 512], [0, 1, 2, 3], 'resize_concat'),  # fusion
+        ]
+        # reg
+        use_reg = True
+        start_distribution_iter = 3000  # maybe 0 or 1000
+        contrastive_temperature = 100.  # maybe 0.07, 0.1, 1.0, 10., 1000.
+        contrastive_weight = 0.01
+        reg_relative_weight = 0.001
+        # contrastive variants
+        methods = [
+            # use_dist, use_bank
+            (True, False),  # DistCL
+        ]
+        # results
+        for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods,
+                                                                                         datasets):
+            in_channels, contrast_indexes, contrast_mode = mode
+            cfg = config_from_vars()
+            cfgs.append(cfg)
+        # -------------------------------------------------------------------------
+        # SePiCo - DistCL w/o FD very small weight
+        # -------------------------------------------------------------------------
+    elif id == 10:
+        seeds = [255]
+        datasets = [
+            ('zerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
+        udas = ['dacs_sepico']
+        modes = [
+            # in_channels, contrast_indexes, contrast_mode
+            ([64, 128, 320, 512], [0, 1, 2, 3], 'resize_concat'),  # fusion
+        ]
+        # reg
+        use_reg = True
+        start_distribution_iter = 3000  # maybe 0 or 1000
+        contrastive_temperature = 100.  # maybe 0.07, 0.1, 1.0, 10., 1000.
+        contrastive_weight = 0.01
+        reg_relative_weight = 0.001
+        # contrastive variants
+        methods = [
+            # use_dist, use_bank
+            (True, False),  # DistCL
+        ]
+        # results
+        for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods,
+                                                                                         datasets):
+            in_channels, contrast_indexes, contrast_mode = mode
+            cfg = config_from_vars()
+            cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # SePiCo - DistCL w/o FD very small weight
+    # -------------------------------------------------------------------------
+    elif id == 11:
+        seeds = [65535]
+        datasets = [
+            ('zerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
+        udas = ['dacs_sepico']
+        modes = [
+            # in_channels, contrast_indexes, contrast_mode
+            ([64, 128, 320, 512], [0, 1, 2, 3], 'resize_concat'),  # fusion
+        ]
+        # reg
+        use_reg = True
+        start_distribution_iter = 3000  # maybe 0 or 1000
+        contrastive_temperature = 100.  # maybe 0.07, 0.1, 1.0, 10., 1000.
+        contrastive_weight = 0.01
+        reg_relative_weight = 0.001
+        # contrastive variants
+        methods = [
+            # use_dist, use_bank
+            (True, False),  # DistCL
+        ]
+        # results
+        for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods,
+                                                                                         datasets):
+            in_channels, contrast_indexes, contrast_mode = mode
+            cfg = config_from_vars()
+            cfgs.append(cfg)
+    # -------------------------------------------------------------------------
+    # SePiCo - DistCL w/o FD very small weight
+    # -------------------------------------------------------------------------
+    elif id == 12:
+        seeds = [2022]
+        datasets = [
+            ('zerov1', 'zerov2'),
+        ]
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
+        udas = ['dacs_sepico']
+        modes = [
+            # in_channels, contrast_indexes, contrast_mode
+            ([64, 128, 320, 512], [0, 1, 2, 3], 'resize_concat'),  # fusion
+        ]
+        # reg
+        use_reg = True
+        start_distribution_iter = 3000  # maybe 0 or 1000
+        contrastive_temperature = 100.  # maybe 0.07, 0.1, 1.0, 10., 1000.
+        contrastive_weight = 0.01
+        reg_relative_weight = 0.001
+        # contrastive variants
+        methods = [
+            # use_dist, use_bank
+            (True, False),  # DistCL
+        ]
+        # results
+        for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods,
+                                                                                         datasets):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
             cfgs.append(cfg)
