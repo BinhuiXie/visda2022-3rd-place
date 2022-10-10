@@ -2,11 +2,11 @@
 CUDA_VISIBLE_DEVICES=0 nohup python run_test_experiments.py --exp 0 >testlogs/exp0.log >&1 &
 CUDA_VISIBLE_DEVICES=1 nohup python run_test_experiments.py --exp 1 >testlogs/exp1.log >&1 &
 CUDA_VISIBLE_DEVICES=2 nohup python run_test_experiments.py --exp 2 >testlogs/exp2.log >&1 &
-CUDA_VISIBLE_DEVICES=3 python run_test_experiments.py --exp 3 >testlogs/exp3.log >&1 &
-CUDA_VISIBLE_DEVICES=4 python run_test_experiments.py --exp 4 >testlogs/exp4.log >&1 &
-CUDA_VISIBLE_DEVICES=5 python run_test_experiments.py --exp 5 >testlogs/exp5.log >&1 &
-CUDA_VISIBLE_DEVICES=6 python run_test_experiments.py --exp 6 >testlogs/exp6.log >&1 &
-CUDA_VISIBLE_DEVICES=7 python run_test_experiments.py --exp 7 >testlogs/exp7.log >&1 &
+CUDA_VISIBLE_DEVICES=3 nohup python run_test_experiments.py --exp 3 >testlogs/exp3.log >&1 &
+CUDA_VISIBLE_DEVICES=4 nohup python run_test_experiments.py --exp 4 >testlogs/exp4.log >&1 &
+CUDA_VISIBLE_DEVICES=5 nohup python run_test_experiments.py --exp 5 >testlogs/exp5.log >&1 &
+CUDA_VISIBLE_DEVICES=6 nohup python run_test_experiments.py --exp 6 >testlogs/exp6.log >&1 &
+CUDA_VISIBLE_DEVICES=7 nohup python run_test_experiments.py --exp 7 >testlogs/exp7.log >&1 &
 
 
 
