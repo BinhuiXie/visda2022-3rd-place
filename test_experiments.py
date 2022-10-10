@@ -519,16 +519,15 @@ def generate_experiment_cfgs(id):
         use_reg = True
         start_distribution_iter = 3000  # maybe 0 or 1000
         contrastive_temperature = 100.  # maybe 0.07, 0.1, 1.0, 10., 1000.
-        contrastive_weights = 0.01
-        reg_relative_weights = 0.001
+        contrastive_weight = 0.01
+        reg_relative_weight = 0.001
         # contrastive variants
         methods = [
             # use_dist, use_bank
             (True, False),  # DistCL
         ]
         # results
-        for seed, contrastive_weight, reg_relative_weight, uda, mode, (use_dist, use_bank), (
-        source, target) in itertools.product(seeds, contrastive_weights, reg_relative_weights, udas, modes, methods,
+        for seed, uda, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, udas, modes, methods,
                                              datasets):
             in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
