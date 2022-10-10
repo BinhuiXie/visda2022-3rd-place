@@ -269,9 +269,11 @@ class EncoderDecoder(BaseSegmentor):
 
         return output
 
-    def simple_test(self, img, img_meta, rescale=True):
+    def simple_test(self, img, img_meta, rescale=True, soft=False):
         """Simple test with single image."""
         seg_logit = self.inference(img, img_meta, rescale)
+        if soft:
+            return seg_logit
         seg_pred = seg_logit.argmax(dim=1)
         if torch.onnx.is_in_onnx_export():
             # our inference backend only support 4D output

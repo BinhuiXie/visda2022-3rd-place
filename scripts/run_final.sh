@@ -7,9 +7,7 @@ CUDA_VISIBLE_DEVICES=4 nohup python run_test_experiments.py --exp 4 >testlogs/ex
 CUDA_VISIBLE_DEVICES=5 nohup python run_test_experiments.py --exp 5 >testlogs/exp5.log >&1 &
 CUDA_VISIBLE_DEVICES=6 nohup python run_test_experiments.py --exp 6 >testlogs/exp6.log >&1 &
 CUDA_VISIBLE_DEVICES=7 nohup python run_test_experiments.py --exp 7 >testlogs/exp7.log >&1 &
-
-
-
+CUDA_VISIBLE_DEVICES=3 nohup python run_test_experiments.py --exp 8 >testlogs/exp8.log >&1 &
 
 # STEP 0: checkout & pull
 # if you uploaded files via pyCharm, just run `checkout.sh`
