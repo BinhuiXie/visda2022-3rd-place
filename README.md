@@ -77,7 +77,7 @@ The baseline results on the test and validation sets of ZeroWaste V2 are as foll
 
 
 ## Hardware and training and test time
-We conducted all experiments on a single NVIDIA A100-SXM4-80GB, the training process costs about 14 hours and test process costs about 6 minutes.
+We conducted all experiments on a single NVIDIA A100-SXM4-80GB, the training process costs about 14 hours (per run) and test process costs about 6 minutes (ensemble 3 runs).
 
 ## Citation
 ```
