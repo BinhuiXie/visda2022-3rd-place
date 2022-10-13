@@ -15,6 +15,20 @@ CUDA_VISIBLE_DEVICES=3 nohup python run_test_experiments.py --exp 11 >testlogs/e
 CUDA_VISIBLE_DEVICES=4 nohup python run_test_experiments.py --exp 12 >testlogs/exp12.log >&1 &
 # ensemble test cmd
 CUDA_VISIBLE_DEVICES=0 python -m tools.ensemble_test CFG1_PATH CFG2_PATH CFG3_PATH --checkpoint MODEL1_PATH MODEL2_PATH MODEL3_PATH --show-dir ./PATH/TO/SHOW/palette --opacity 1 --ensemble-policy average_policy
+# ensemble parameter example below
+#"/mnt/data/bit/xbh/_visda2022/visda2022-ours/work_dirs_test/local-exp5/221003_1406_daformer_sepaspp_proj_mitb5_dacs_sepico_DistCL-reg-w0.1-start-iter3000-tau100.0-l[0, 1, 2, 3]-w1.0_cpl_self_adamw_6e-05_pmT_poly10warm_1x2_40k_zerov12zerov2_seed42_75f37/221003_1406_daformer_sepaspp_proj_mitb5_dacs_sepico_DistCL-reg-w0.1-start-iter3000-tau100.0-l[0, 1, 2, 3]-w1.0_cpl_self_adamw_6e-05_pmT_poly10warm_1x2_40k_zerov12zerov2_seed42_75f37.json"
+#"/mnt/data/bit/xbh/_visda2022/visda2022-ours/work_dirs_test/local-exp5/221003_1406_daformer_sepaspp_proj_mitb5_dacs_sepico_DistCL-reg-w0.1-start-iter3000-tau100.0-l[0, 1, 2, 3]-w1.0_cpl_self_adamw_6e-05_pmT_poly10warm_1x2_40k_zerov12zerov2_seed42_e1af2/221003_1406_daformer_sepaspp_proj_mitb5_dacs_sepico_DistCL-reg-w0.1-start-iter3000-tau100.0-l[0, 1, 2, 3]-w1.0_cpl_self_adamw_6e-05_pmT_poly10warm_1x2_40k_zerov12zerov2_seed42_e1af2.json"
+#"/mnt/data/bit/xbh/_visda2022/visda2022-ours/work_dirs_test/local-exp5/221003_1406_daformer_sepaspp_proj_mitb5_dacs_sepico_DistCL-reg-w0.1-start-iter3000-tau100.0-l[0, 1, 2, 3]-w1.0_cpl_self_adamw_6e-05_pmT_poly10warm_1x2_40k_zerov12zerov2_seed42_e9c12/221003_1406_daformer_sepaspp_proj_mitb5_dacs_sepico_DistCL-reg-w0.1-start-iter3000-tau100.0-l[0, 1, 2, 3]-w1.0_cpl_self_adamw_6e-05_pmT_poly10warm_1x2_40k_zerov12zerov2_seed42_e9c12.json"
+#--checkpoint
+#"/mnt/data/bit/xbh/_visda2022/visda2022-ours/work_dirs_test/local-exp5/221003_1406_daformer_sepaspp_proj_mitb5_dacs_sepico_DistCL-reg-w0.1-start-iter3000-tau100.0-l[0, 1, 2, 3]-w1.0_cpl_self_adamw_6e-05_pmT_poly10warm_1x2_40k_zerov12zerov2_seed42_75f37/latest.pth"
+#"/mnt/data/bit/xbh/_visda2022/visda2022-ours/work_dirs_test/local-exp5/221003_1406_daformer_sepaspp_proj_mitb5_dacs_sepico_DistCL-reg-w0.1-start-iter3000-tau100.0-l[0, 1, 2, 3]-w1.0_cpl_self_adamw_6e-05_pmT_poly10warm_1x2_40k_zerov12zerov2_seed42_e1af2/latest.pth"
+#"/mnt/data/bit/xbh/_visda2022/visda2022-ours/work_dirs_test/local-exp5/221003_1406_daformer_sepaspp_proj_mitb5_dacs_sepico_DistCL-reg-w0.1-start-iter3000-tau100.0-l[0, 1, 2, 3]-w1.0_cpl_self_adamw_6e-05_pmT_poly10warm_1x2_40k_zerov12zerov2_seed42_e9c12/latest.pth"
+#--show-dir
+#preds_ensemble/exp5_regw_0_1/
+#--opacity
+#1
+#--ensemble-policy
+#average_policy
 
 # STEP 0: checkout & pull
 # if you uploaded files via pyCharm, just run `checkout.sh`
