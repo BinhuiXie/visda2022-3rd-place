@@ -117,7 +117,6 @@ def setup_rcs(cfg, temperature):
 
 
 def generate_experiment_cfgs(id):
-
     def config_from_vars():
         cfg = {'_base_': ['_base_/default_runtime.py'], 'n_gpus': n_gpus}
         if seed is not None:
@@ -139,30 +138,62 @@ def generate_experiment_cfgs(id):
         cfg = update_decoder_in_channels(cfg, architecture_mod, backbone)
 
         # Setup UDA config
-        if uda == 'target-only':
-            cfg['_base_'].append(f'_base_/datasets/{target}_half_{crop}.py')
-        elif uda == 'source-only':
+        if uda == 'source-only':
             cfg['_base_'].append(
-                f'_base_/datasets/{source}_to_{target}_{crop}.py')
+                f'_base_/datasets/src_{source}_to_{target}_{crop}.py')
         else:
             cfg['_base_'].append(
                 f'_base_/datasets/uda_{source}_to_{target}_{crop}.py')
             cfg['_base_'].append(f'_base_/uda/{uda}.py')
-        if 'dacs' in uda and plcrop:
-            cfg.setdefault('uda', {})
-            cfg['uda']['pseudo_weight_ignore_top'] = 15
-            cfg['uda']['pseudo_weight_ignore_bottom'] = 120
+
         cfg['data'] = dict(
             samples_per_gpu=batch_size,
             workers_per_gpu=workers_per_gpu,
             train={})
+
+        if 'dacs' in uda:
+            cfg.setdefault('uda', {})
+            if plcrop:
+                cfg['uda']['pseudo_weight_ignore_top'] = 15
+                cfg['uda']['pseudo_weight_ignore_bottom'] = 120
+
         if 'dacs' in uda and rcs_T is not None:
             cfg = setup_rcs(cfg, rcs_T)
+
+        # sepico parameters
+        if 'sepico' in uda:
+
+            cfg['uda']['start_distribution_iter'] = start_distribution_iter
+            if use_bank:
+                cfg['uda']['memory_length'] = memory_length
+
+            cfg['model'].setdefault('auxiliary_head', {})
+            cfg['model']['auxiliary_head']['in_channels'] = in_channels
+            cfg['model']['auxiliary_head']['in_index'] = contrast_indexes
+            cfg['model']['auxiliary_head']['input_transform'] = contrast_mode
+            cfg['model']['auxiliary_head']['channels'] = channels
+            cfg['model']['auxiliary_head']['num_convs'] = num_convs
+            if num_convs == 0:
+                if contrast_mode == 'resize_concat':
+                    cfg['model']['auxiliary_head']['channels'] = sum(in_channels)
+                else:
+                    cfg['model']['auxiliary_head']['channels'] = in_channels
+            cfg['model']['auxiliary_head'].setdefault('loss_decode', {})
+            cfg['model']['auxiliary_head']['loss_decode']['use_dist'] = use_dist
+            cfg['model']['auxiliary_head']['loss_decode']['use_bank'] = use_bank
+            cfg['model']['auxiliary_head']['loss_decode']['use_reg'] = use_reg
+            cfg['model']['auxiliary_head']['loss_decode']['use_avg_pool'] = use_avg_pool
+            cfg['model']['auxiliary_head']['loss_decode']['scale_min_ratio'] = scale_min_ratio
+            cfg['model']['auxiliary_head']['loss_decode']['contrast_temp'] = contrastive_temperature
+            cfg['model']['auxiliary_head']['loss_decode']['loss_weight'] = contrastive_weight
+            cfg['model']['auxiliary_head']['loss_decode']['reg_relative_weight'] = reg_relative_weight
+
+        if enable_self_training:
+            cfg['uda']['enable_self_training'] = enable_self_training
 
         # Setup optimizer and schedule
         if 'dacs' in uda:
             cfg['optimizer_config'] = None  # Don't use outer optimizer
-
         cfg['_base_'].extend(
             [f'_base_/schedules/{opt}.py', f'_base_/schedules/{schedule}.py'])
         cfg['optimizer'] = {'lr': lr}
@@ -183,12 +214,30 @@ def generate_experiment_cfgs(id):
 
         # Construct config name
         uda_mod = uda
+        if 'sepico' in uda:
+            if use_dist:
+                uda_mod += '_DistCL'
+            elif use_bank:
+                uda_mod += '_BankCL'
+            else:
+                uda_mod += '_ProtoCL'
+            if use_reg:
+                uda_mod += f'-reg-w{reg_relative_weight * contrastive_weight}'
+            uda_mod += f'-start-iter{start_distribution_iter}'
+            uda_mod += f'-tau{contrastive_temperature}'
+            if contrast_mode == 'multiple_select':
+                for lyr in contrast_indexes:
+                    uda_mod += f'-l{lyr}-w{contrastive_weight}'
+            else:
+                uda_mod += f'-l{contrast_indexes}-w{contrastive_weight}'
+
         if 'dacs' in uda and rcs_T is not None:
             uda_mod += f'_rcs{rcs_T}'
         if 'dacs' in uda and plcrop:
             uda_mod += '_cpl'
-        cfg['name'] = f'{source}2{target}_{uda_mod}_{architecture_mod}_' \
-                      f'{backbone}_{schedule}'
+        if enable_self_training:
+            uda_mod += '_self'
+
         cfg['exp'] = id
         cfg['name_dataset'] = f'{source}2{target}'
         cfg['name_architecture'] = f'{architecture_mod}_{backbone}'
@@ -197,11 +246,10 @@ def generate_experiment_cfgs(id):
         cfg['name_uda'] = uda_mod
         cfg['name_opt'] = f'{opt}_{lr}_pm{pmult}_{schedule}' \
                           f'_{n_gpus}x{batch_size}_{iters // 1000}k'
+        cfg['name'] = f"{cfg['name_architecture']}_{cfg['name_uda']}_{cfg['name_opt']}_{cfg['name_dataset']}"
         if seed is not None:
-            cfg['name'] += f'_s{seed}'
-        cfg['name'] = cfg['name'].replace('.', '').replace('True', 'T') \
-            .replace('False', 'F').replace('cityscapes', 'cs') \
-            .replace('synthia', 'syn')
+            cfg['name'] += f'_seed{seed}'
+        cfg['name'] = cfg['name'].replace('.', '.').replace('True', 'T').replace('False', 'F')
         return cfg
 
     # -------------------------------------------------------------------------
@@ -212,227 +260,79 @@ def generate_experiment_cfgs(id):
     batch_size = 2
     iters = 40000
     opt, lr, schedule, pmult = 'adamw', 0.00006, 'poly10warm', True
-    crop = '512x512'
+    crop = '640x640'
     datasets = [
-        ('zerowaste', 'zerowaste'),
+        ('zerov1', 'zerov2'),
     ]
-    architecture = None
-    workers_per_gpu = 4
+
     rcs_T = None
-    plcrop = False
+    plcrop = True
+    enable_self_training = True
+    workers_per_gpu = 4
+
+    # auxiliary head parameters
+    in_channels = 2048  # in_channels = [256, 512, 1024, 2048]
+    channels = 512  # default out_dim
+    num_convs = 2
+    contrast_indexes = 3  # int or list, depending on value of contrast_mode
+    contrast_mode = None  # optional(None, 'resize_concat', 'multiple_select')
+    use_dist = False
+    use_bank = False
+    memory_length = 200
+    use_reg = False
+    use_avg_pool = True
+    scale_min_ratio = 0.75  # used for down-sampling
+    start_distribution_iter = 3000
+    contrastive_temperature = 100.
+    contrastive_weight = 1.0
+    reg_relative_weight = 1.0  # reg_weight = reg_relative_weight * loss_weight in auxiliary head
+
     # -------------------------------------------------------------------------
-    # UDA Architecture Comparison (Table 1)
+    # source only
     # -------------------------------------------------------------------------
-    if id == 1:
-        seeds = [0, 1, 2]
-        models = [
-            # Note: For the DeepLabV2 decoder, we follow AdaptSegNet as well as
-            # many follow-up works using the same source code for the network
-            # architecture (e.g. DACS or ProDA) and use only the dilation rates
-            # 6 and 12. We point this out as it is hidden in the source code by
-            # a return statement within a loop:
-            # https://github.com/wasidennis/AdaptSegNet/blob/fca9ff0f09dab45d44bf6d26091377ac66607028/model/deeplab.py#L116
-            # ('dlv2red', 'r101v1c'),
-            # Note: For the decoders used in combination with CNN encoders, we
-            # do not apply BatchNorm in the *decoder* as it decreases
-            # the UDA performance. In the encoder, BatchNorm is still applied.
-            # The decoder of DeepLabV2 has no BatchNorm layer by default.
-            # ('da_nodbn', 'r101v1c'),
-            # ('isa_nodbn', 'r101v1c'),
-            # ('dlv3p_nodbn', 'r101v1c'),
-            ('segformer', 'mitb5'),
-        ]
-        udas = [
-            'source-only',
-            'dacs',
-            'target-only',
-        ]
-        for (source, target), (architecture, backbone), uda, seed in \
-                itertools.product(datasets, models, udas, seeds):
-            cfg = config_from_vars()
-            cfgs.append(cfg)
-    # -------------------------------------------------------------------------
-    # SegFormer Encoder / Decoder Ablation (Table 2)
-    # -------------------------------------------------------------------------
-    elif id == 2:
-        seeds = [0, 1, 2]
-        models = [
-            # ('segformer', 'mitb5'),  # already run in exp 1
-            ('sfa_dlv3p_nodbn', 'mitb5-del'),
-            ('segformer', 'r101v1c'),
-            # ('dlv3p_nodbn', 'r101v1c'),  # already run in exp 1
-        ]
-        udas = [
-            'dacs',
-            'target-only',
-        ]
-        for (source, target), (architecture, backbone), uda, seed in \
-                itertools.product(datasets, models, udas, seeds):
-            cfg = config_from_vars()
-            cfgs.append(cfg)
-    # -------------------------------------------------------------------------
-    # Encoder Study (Table 3)
-    # -------------------------------------------------------------------------
-    elif id == 3:
+    if id == 0:
         seeds = [0]
-        models = [
-            ('dlv2red', 'r50v1c'),
-            # ('dlv2red', 'r101v1c'),  # already run in exp 1
-            ('dlv2red', 's50'),
-            ('dlv2red', 's101'),
-            ('dlv2red', 's200'),
-            ('segformer', 'mitb3'),
-            ('segformer', 'mitb4'),
-            # ('segformer', 'mitb5'),  # already run in exp 1
-        ]
-        udas = [
-            'source-only',
-            'dacs',
-            'target-only',
-        ]
-        for (source, target), (architecture, backbone), uda, seed in \
-                itertools.product(datasets, models, udas, seeds):
-            cfg = config_from_vars()
-            cfgs.append(cfg)
-    # -------------------------------------------------------------------------
-    # Learning Rate Warmup Ablation (Table 4)
-    # -------------------------------------------------------------------------
-    elif id == 4:
-        seeds = [0]
-        models = [
-            ('dlv2red', 'r101v1c'),
-            ('segformer', 'mitb5'),
-        ]
-        udas = ['dacs', 'target-only']
-        opts = [
-            ('adamw', 0.00006, 'poly10', True),
-            # ('adamw', 0.00006, 'poly10warm', True),  # already run in exp 1
-        ]
-        for (source, target), (architecture, backbone), \
-            (opt, lr, schedule, pmult), uda, seed in \
-                itertools.product(datasets, models, opts, udas, seeds):
-            cfg = config_from_vars()
-            cfgs.append(cfg)
-    # -------------------------------------------------------------------------
-    # RCS and FD (Table 5)
-    # -------------------------------------------------------------------------
-    elif id == 5:
-        seeds = [0, 1, 2]
-        for architecture, backbone, uda, rcs_T, plcrop in [
-            ('segformer', 'mitb5', 'dacs', math.inf, False),
-            ('segformer', 'mitb5', 'dacs', 0.01, False),
-            ('segformer', 'mitb5', 'dacs_fd', None, False),
-            ('segformer', 'mitb5', 'dacs_fdthings', None, False),
-            ('segformer', 'mitb5', 'dacs_fdthings', 0.01, False),
-            ('segformer', 'mitb5', 'dacs_a999_fdthings', 0.01, True),
-            ('dlv2red', 'r101v1c', 'dacs_a999_fdthings', 0.01, True),
-        ]:
-            for (source, target), seed in \
-                    itertools.product(datasets, seeds):
-                cfg = config_from_vars()
-                cfgs.append(cfg)
-    # -------------------------------------------------------------------------
-    # Decoder Study (Table 7)
-    # -------------------------------------------------------------------------
-    elif id == 6:
-        seeds = [0, 1, 2]
-        udas = [
-            'dacs_a999_fdthings',
-            'target-only',
-        ]
-        rcs_T = 0.01
-        plcrop = True
-        models = [
-            # ('segformer', 'mitb5'),  # already run in exp 5
-            ('daformer_conv1', 'mitb5'),  # this is segformer with 256 channels
-            ('upernet', 'mitb5'),
-            ('upernet_ch256', 'mitb5'),
-            ('daformer_isa', 'mitb5'),
-            ('daformer_sepaspp_bottleneck', 'mitb5'),  # Context only at F4
-            ('daformer_aspp', 'mitb5'),  # DAFormer w/o DSC
-            ('daformer_sepaspp', 'mitb5'),  # DAFormer
-        ]
-        for (source, target), (architecture, backbone), uda, seed in \
-                itertools.product(datasets, models, udas, seeds):
-            cfg = config_from_vars()
-            cfgs.append(cfg)
-    # -------------------------------------------------------------------------
-    # Final DAFormer (Table 6)
-    # -------------------------------------------------------------------------
-    elif id == 7:
-        seeds = [0, 1, 2]
         datasets = [
-            # ('gta', 'cityscapes'),  # already run in exp 6
-            ('synthia', 'cityscapes'),
+            ('zerov1', 'zerov2'),
         ]
-        architecture, backbone = ('daformer_sepaspp', 'mitb5')
-        uda = 'dacs_a999_fdthings'
-        rcs_T = 0.01
-        plcrop = True
-        for (source, target), seed in \
-                itertools.product(datasets, seeds):
+        architecture, backbone = ('segformer', 'mitb5')
+        uda = 'source-only'
+        plcrop = False
+        enable_self_training = False
+        for (source, target), seed in itertools.product(datasets, seeds):
             cfg = config_from_vars()
             cfgs.append(cfg)
     # -------------------------------------------------------------------------
-    # Architecture Startup Test
+    # SePiCo - DistCL
     # -------------------------------------------------------------------------
-    elif id == 100:
-        iters = 2
-        seeds = [0]
-        models = [
-            ('dlv2red', 'r101v1c'),
-            ('dlv3p_nodbn', 'r101v1c'),
-            ('da_nodbn', 'r101v1c'),
-            ('segformer', 'mitb5'),
-            ('isa_nodbn', 'r101v1c'),
-            ('dlv2red', 'r50v1c'),
-            ('dlv2red', 's50'),
-            ('dlv2red', 's101'),
-            ('dlv2red', 's200'),
-            ('dlv2red', 'x50-32'),
-            ('dlv2red', 'x101-32'),
-            ('segformer', 'mitb4'),
-            ('segformer', 'mitb3'),
-            ('sfa_dlv3p_nodbn', 'mitb5-del'),
-            ('segformer', 'r101v1c'),
-            ('daformer_conv1', 'mitb5'),
-            ('daformer_isa', 'mitb5'),
-            ('daformer_sepaspp_bottleneck', 'mitb5'),
-            ('daformer_aspp', 'mitb5'),
-            ('daformer_sepaspp', 'mitb5'),
-            ('upernet', 'mitb5'),
-            ('upernet_ch256', 'mitb5'),
+    elif id == 1:
+        # ensemble seeds
+        seeds = [42, 6926, 65535]
+        datasets = [
+            ('zerov1', 'zerov2'),
         ]
-        udas = ['target-only']
-        for (source, target), (architecture, backbone), uda, seed in \
-                itertools.product(datasets, models, udas, seeds):
+        architecture, backbone = ('daformer_sepaspp_proj', 'mitb5')
+        uda = 'dacs_sepico'
+        modes = [
+            # in_channels, contrast_indexes, contrast_mode
+            ([64, 128, 320, 512], [0, 1, 2, 3], 'resize_concat'),  # fusion
+        ]
+        # reg
+        use_reg = True
+        start_distribution_iter = 3000
+        contrastive_temperature = 100.
+        contrastive_weight = 0.01
+        reg_relative_weight = 0.001
+        # contrastive variants
+        methods = [
+            # use_dist, use_bank
+            (True, False),  # DistCL
+        ]
+        # results
+        for seed, mode, (use_dist, use_bank), (source, target) in itertools.product(seeds, modes, methods, datasets):
+            in_channels, contrast_indexes, contrast_mode = mode
             cfg = config_from_vars()
-            cfg['log_level'] = logging.ERROR
-            cfg['evaluation']['interval'] = 100
             cfgs.append(cfg)
-    # -------------------------------------------------------------------------
-    # UDA Training Startup Test
-    # -------------------------------------------------------------------------
-    elif id == 101:
-        iters = 2
-        seeds = [0]
-        for architecture, backbone, uda, rcs_T, plcrop in [
-            ('segformer', 'mitb5', 'source-only', None, False),
-            # ('segformer', 'mitb5', 'target-only', None, False),
-            # ('segformer', 'mitb5', 'dacs', None, False),
-            # ('segformer', 'mitb5', 'dacs', math.inf, False),
-            # ('segformer', 'mitb5', 'dacs', 0.01, False),
-            # ('segformer', 'mitb5', 'dacs_fd', None, False),
-            # ('segformer', 'mitb5', 'dacs_fdthings', None, False),
-            # ('segformer', 'mitb5', 'dacs_fdthings', 0.01, False),
-            # ('segformer', 'mitb5', 'dacs_a999_fdthings', 0.01, True),
-        ]:
-            for (source, target), seed in \
-                    itertools.product(datasets, seeds):
-                cfg = config_from_vars()
-                cfg['log_level'] = logging.ERROR
-                cfg['evaluation']['interval'] = 100
-                cfgs.append(cfg)
     else:
         raise NotImplementedError('Unknown id {}'.format(id))
 

@@ -1,71 +1,90 @@
 
 
 
-# VisDA 2022 Challenge 
+# VisDA 2022 Challenge
 
 **[[Challenge website]](https://ai.bu.edu/visda-2022/)**
 
+# Our solution - SePiCo
+[![Code](https://img.shields.io/github/stars/BIT-DA/SePiCo?style=social)](https://github.com/BIT-DA/SePiCo)
 
-## TODO
-- [x] download datasets
-- [x] setup envorinments
-- [x] run baseline on our devices
-- [ ] run SePiCo for this Challenges
-- [ ] run ACDC's solutions for this Challenges
-- [ ] run Language-guided method for this Challenge and calculate model size
+[![Paper](http://img.shields.io/badge/paper-arxiv.2204.08808-B31B1B.svg)](https://arxiv.org/abs/2204.08808)
 
+## Prepare
+We use the provided dataset/pre-trained checkpoints without any additional datasets/checkpoints
 
-## Datasets preparation
+The pre-trained folder should include `pretrained/mit_b5.pth`
 
+The data folder should be structured as follows:
+```
+├── data/
+│   ├── zerowaste-f/     
+|   |   ├── train/
+|   |   |   ├── data/
+|   |   |   ├── sem_seg/
+|   |   ├── val/
+|   |   |   ├── data/
+|   |   |   ├── sem_seg/
+|   |   ├── test/
+|   |   |   ├── data/
+|   |   |   ├── sem_seg/
+│   ├── zerowaste-v2-splits/
+|   |   ├── train/
+|   |   |   ├── data/
+|   |   ├── val/
+|   |   |   ├── data/
+|   |   ├── test/
+|   |   |   ├── data/
+│   └──	
+```
 
-## Baseline (DAFormer)
-
-### Training & Testing & Predictions
-
-We provide the following config files:
-
-1. `configs/daformer/zerov1_to_zerov2_daformer_mit5.py` for training DAFormer on ZeroWaste V1 (train) as source domain and ZeroWaste V2 as target domain.
-2. `configs/source_only/zerov1_to_zerov2_segformer.json` to train SegFormer on ZeroWaste V1 (train) and test on ZeroWaste V2 (source-only). 
-3. `configs/daformer/synaugzerov1_to_zerov2_daformer_mit5.py` to train DAFormer on the combination of SynthWaste-aug and ZeroWaste V1 (train) as source domain and ZeroWaste V2 as target domain.
-4. `configs/source_only/synaugzerov1_to_zerov2_segformer.json` to train SegFormer on the combination of SynthWaste-aug and ZeroWaste V1 (train) and test on ZeroWaste V2 (source-only). 
-5. `configs/daformer/zerov1all_to_zerov2_daformer_mit5.py` for training DAFormer on ZeroWaste V1 (all) as source domain and ZeroWaste V2 as target domain.
-6. `configs/source_only/zerov1all_to_zerov2_segformer.json` to train SegFormer on the combination of SynthWaste-aug and ZeroWaste V1 (all) and test on ZeroWaste V2 (source-only). 
-
-
-To train the model with a desired configuration,
-To evaluate the model and output the visual examples of the predictions,
-To produce final predictions in the original label mapping (0 = 'background', 1 = 'rigid_plastic', 2 = 'cardboard', 3 = 'metal', 4 = 'soft_plastic'), 
+## Train & Evaluate
+To train the model with a desired configuration, and produce final predictions in the original label mapping (0 = 'background', 1 = 'rigid_plastic', 2 = 'cardboard', 3 = 'metal', 4 = 'soft_plastic'), 
 use the following script:
 ```shell
-e.g., sh scripts/1_zerov1_daformer_SegF.sh
+# STEP 1: Training
+# To run an experiment, first set the parameters in `experiments.py` and take the exp id here
+# The working directory is set to `./work_dirs_test`. Change it in run_experiments.py if you would like to.
+## source only
+python run_experiments.py --exp 0
+## SePiCo, 3 random runs
+python run_experiments.py --exp 1  
+
+# STEP 2: Evaluate and do palette
+# This step evaluates the model and outputs corresponding test set labels (zero v2 val/test set)
+# Gets visuals here
+## source only 
+python -m tools.test CFG_PATH MODEL_PATH --show-dir ./PATH_TO_SHOW/exp0/palette --opacity 1
+## ensemble sepico
+python -m tools.ensemble_test CFG1_PATH CFG2_PATH CFG3_PATH --checkpoint MODEL1_PATH MODEL2_PATH MODEL3_PATH --show-dir ./PATH_TO_SHOW/exp1/palette --opacity 1 --ensemble-policy average_policy
+
+# STEP 3: Converting for submission
+# This step converts visual labels to train id labels to prepare for submission
+python -m tools.convert_visuals_to_labels ./PATH_TO_SHOW/exp0/palette ./PATH_TO_SHOW/exp0/source_only
+python -m tools.convert_visuals_to_labels ./PATH_TO_SHOW/exp1/palette ./PATH_TO_SHOW/exp1/uda
+
+
+# STEP 4: Packing and zipping
+zip -q -r sepico_v1_to_v2.zip ./PATH_TO_SHOW/exp1/uda ./PATH_TO_SHOW/exp0/source_only
 ```
-The checkpoints, full config file and other relevant data will be stored in the experiment folder. By default, the experiments will be saved to the `experiment` folder.
-For more details on how to use the code, please see the [official DAFormer guide](https://github.com/lhoyer/DAFormer). 
-
-
-## Submit on eval.ai
-For evaluation, participants are required to join [VisDA-2022](https://eval.ai/web/challenges/challenge-page/1806/overview) the challenge on eval.ai. Please create an account on [eval.ai](https://eval.ai/) with the same email address you used to sign up for the challenge. Under the VisDA-2022 challenge, go to "Participate" and create a team with the same name as the one you registered. All members of a team need not be on eval.ai as long as one member in the team can submit. 
-
-Information regarding challenge phases can be found under "Phases". We are currently in Phase-1, the development phase of the challenge. For evaluating your method, you can submit a zip file of your predictions in the format described below. eval.ai allows you to submit either via the web UI or via a [command line interface](https://cli.eval.ai/). In Phase-1 each time has a limit of 5 submissions per day. 
-
-Once submitted, you can see the status of your submission under "My Submissions". Each evaluation takes around 9 mins during which your submission will be in the "Running" state. The server handles one submission at a time, so you may see your submission in the "Submitted" state before it gets to "Running".
-
-Refer to evalai documentation for more information on how to [participate](https://evalai.readthedocs.io/en/latest/participate.html) and how to [handle submissions](https://evalai.readthedocs.io/en/latest/make_submission_public_private_baseline.html). Feel free to contact the visda organizers via [email](mailto:visda-organizers@googlegroups.com), or a github issue for questions regarding the interface.
-
-
-## Submission format
-For both phases, we ask the participants to submit their predictions in the following format: the submitted file should be a zip archive containing two folders: **source_only** and **uda** containing predictions of the source-only and adaptation version of their solution. Each folder should contain the predicted label maps in the original label mapping (0 = 'background', 1 = 'rigid_plastic', 2 = 'cardboard', 3 = 'metal', 4 = 'soft_plastic') that should have the same name and file extension as the corresponding input images. 
 
 ## Baseline results
 The baseline results on the test and validation sets of ZeroWaste V2 are as follows:
-| Experiment            |   test mIoU     |  test  Acc      |  val mIoU     |  val  Acc      |
-| -----------           | ----------- | ----------- |  ----------- | ----------- |
-| SegFormer V1          |     45.49   |     91.64   |        45.56      |      87.85       |
-| SegFormer Synthwaste_aug+V1 |      42.61   |      91.22   |   41.2   |    87.19    |
-| DAFormer V1->V2       |       52.26      |      91.2       |   50.84   |   87.29    |
-| DAFormer SynthWaste_aug+V1->V2 |      48.31     |    90.63     |   46.29  |   87.0   |
+| Experiment            | test mIoU   |  test  Acc  |  val mIoU    |  val  Acc   |    #params  |
+| -----------           | ----------- | ----------- |  ----------- | ----------- | ----------- |
+| SegFormer V1          |     47.22   |     92.14   |    46.0      |   88.09     |   84.6 M    |
+| SePiCo V1->V2         |     54.38   |     91.80   |    54.0      |    87.57    |   85.55M    | 
 
 
+## Hardware and training and test time
+We conducted all experiments on a single NVIDIA A100-SXM4-80GB, the training process costs about 14 hours and test process costs about 6 minutes.
 
-## Custom simulation
-We also allow the participants to generate their custom synthetic datasets to achieve the best performance. Please see how to use our simulation software [here](simulation/readme.txt). 
+## Citation
+```
+@article{xie2022sepico,
+  title={SePiCo: Semantic-Guided Pixel Contrast for Domain Adaptive Semantic Segmentation},
+  author={Xie, Binhui and Li, Shuang and Li, Mingjia and Liu, Chi Harold and Huang, Gao and Wang, Guoren},
+  journal={arXiv preprint arXiv:2204.08808},
+  year={2022}
+}
+```
