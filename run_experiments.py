@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
     # Training with Predefined Config
     if args.config is not None:
-        setproctitle.setproctitle(f'SePiCo CFG: {args.config}')
+        setproctitle.setproctitle(f'VisDA Challenge 2022 (#EXP: {args.config})')
         cfg = Config.fromfile(args.config)
         # Specify Name and Work Directory
         exp_name = f'{args.machine}-{cfg["exp"]}'
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         child_cfg = {
             '_base_': args.config.replace('configs', '../..'),
             'name': unique_name,
-            'work_dir': os.path.join('work_dirs', exp_name, unique_name),
+            'work_dir': os.path.join('work_dirs_test', exp_name, unique_name),
             'git_rev': get_git_hash()
         }
         cfg_out_file = f"{GEN_CONFIG_DIR}/{exp_name}/{child_cfg['name']}.json"
@@ -75,7 +75,7 @@ if __name__ == '__main__':
 
     # Training with Generated Configs from experiments.py
     if args.exp is not None:
-        setproctitle.setproctitle(f'VisDA EXP: {args.exp}')
+        setproctitle.setproctitle(f'VisDA Challenge 2022 (#EXP: {args.exp})')
         exp_name = f'{args.machine}-exp{args.exp}'
         cfgs = generate_experiment_cfgs(args.exp)
         # Generate Configs
@@ -89,7 +89,7 @@ if __name__ == '__main__':
             # Generate Config File
             cfg['name'] = f'{datetime.now().strftime("%y%m%d_%H%M")}_' \
                           f'{cfg["name"]}_{str(uuid.uuid4())[:5]}'
-            cfg['work_dir'] = os.path.join('work_dirs', exp_name, cfg['name'])
+            cfg['work_dir'] = os.path.join('work_dirs_test', exp_name, cfg['name'])
             cfg['git_rev'] = get_git_hash()
             cfg['_base_'] = ['../../' + e for e in cfg['_base_']]
             cfg_out_file = f"{GEN_CONFIG_DIR}/{exp_name}/{cfg['name']}.json"
