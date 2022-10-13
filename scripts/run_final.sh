@@ -13,6 +13,8 @@ CUDA_VISIBLE_DEVICES=1 nohup python run_test_experiments.py --exp 9 >testlogs/ex
 CUDA_VISIBLE_DEVICES=2 nohup python run_test_experiments.py --exp 10 >testlogs/exp10.log >&1 &
 CUDA_VISIBLE_DEVICES=3 nohup python run_test_experiments.py --exp 11 >testlogs/exp11.log >&1 &
 CUDA_VISIBLE_DEVICES=4 nohup python run_test_experiments.py --exp 12 >testlogs/exp12.log >&1 &
+# ensemble test cmd
+CUDA_VISIBLE_DEVICES=0 python -m tools.ensemble_test CFG1_PATH CFG2_PATH CFG3_PATH --checkpoint MODEL1_PATH MODEL2_PATH MODEL3_PATH --show-dir ./PATH/TO/SHOW/palette --opacity 1 --ensemble-policy average_policy
 
 # STEP 0: checkout & pull
 # if you uploaded files via pyCharm, just run `checkout.sh`
