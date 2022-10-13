@@ -20,7 +20,7 @@ from mmseg.apis import multi_gpu_test, single_gpu_test, multi_gpu_test_ensemble,
 from mmseg.datasets import build_dataloader, build_dataset
 from mmseg.models import build_segmentor
 
-from ensemble_utils import EnsemblePolicy
+from .ensemble_utils import EnsemblePolicy
 
 
 def update_legacy_cfg(cfg):
