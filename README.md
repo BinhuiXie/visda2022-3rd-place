@@ -5,10 +5,12 @@
 
 **[[Challenge website]](https://ai.bu.edu/visda-2022/)**
 
-# Our solution - SePiCo
-[![Code](https://img.shields.io/github/stars/BIT-DA/SePiCo?style=social)](https://github.com/BIT-DA/SePiCo)
+# BIT-DA solution - SePiCo
 
-[![Paper](http://img.shields.io/badge/paper-arxiv.2204.08808-B31B1B.svg)](https://arxiv.org/abs/2204.08808)
+[![Paper](http://img.shields.io/badge/paper-arxiv.2204.08808-B31B1B.svg)](https://arxiv.org/abs/2204.08808)  [![Code](https://img.shields.io/github/stars/BIT-DA/SePiCo?style=social)](https://github.com/BIT-DA/SePiCo)
+
+final leaderboard
+![](resources/leaderboard.png)
 
 ## Prepare
 We use the provided dataset/pre-trained checkpoints without any additional datasets/checkpoints
