@@ -6,10 +6,12 @@
 **[[Challenge website]](https://ai.bu.edu/visda-2022/)**
 
 # BIT-DA solution - SePiCo
-
 [![Paper](http://img.shields.io/badge/paper-arxiv.2204.08808-B31B1B.svg)](https://arxiv.org/abs/2204.08808)  [![Code](https://img.shields.io/github/stars/BIT-DA/SePiCo?style=social)](https://github.com/BIT-DA/SePiCo)
 
-final leaderboard
+A novel one-stage adaptation framework that highlights the semantic concepts of individual pixel to promote learning of class-discriminative and class-balanced pixel embedding space across domains. 
+  
+
+### final leaderboard
 ![](resources/leaderboard.png)
 
 ## Prepare
